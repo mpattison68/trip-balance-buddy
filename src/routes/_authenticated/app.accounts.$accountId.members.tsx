@@ -14,7 +14,7 @@ import { addMember, updateMember } from "@/lib/data.functions";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/members")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/members")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(membersQO(params.accountId)),
   component: MembersPage,
 });

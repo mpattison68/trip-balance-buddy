@@ -13,17 +13,17 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
-import { Route as AuthenticatedAppAccountsTripsRouteImport } from './routes/_authenticated/app.accounts..trips'
-import { Route as AuthenticatedAppAccountsSettlementsRouteImport } from './routes/_authenticated/app.accounts..settlements'
-import { Route as AuthenticatedAppAccountsReportsRouteImport } from './routes/_authenticated/app.accounts..reports'
-import { Route as AuthenticatedAppAccountsMembersRouteImport } from './routes/_authenticated/app.accounts..members'
-import { Route as AuthenticatedAppAccountsHistoryRouteImport } from './routes/_authenticated/app.accounts..history'
-import { Route as AuthenticatedAppAccountsCategoriesRouteImport } from './routes/_authenticated/app.accounts..categories'
-import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenticated/app.accounts.'
-import { Route as AuthenticatedAppAccountsTripsNewRouteImport } from './routes/_authenticated/app.accounts..trips.new'
-import { Route as AuthenticatedAppAccountsTripsRouteImport } from './routes/_authenticated/app.accounts..trips.'
-import { Route as AuthenticatedAppAccountsTripsExpensesNewRouteImport } from './routes/_authenticated/app.accounts..trips..expenses.new'
-import { Route as AuthenticatedAppAccountsTripsExpensesEditRouteImport } from './routes/_authenticated/app.accounts..trips..expenses..edit'
+import { Route as AuthenticatedAppAccountsAccountIdRouteImport } from './routes/_authenticated/app.accounts.$accountId'
+import { Route as AuthenticatedAppAccountsAccountIdTripsRouteImport } from './routes/_authenticated/app.accounts.$accountId.trips'
+import { Route as AuthenticatedAppAccountsAccountIdSettlementsRouteImport } from './routes/_authenticated/app.accounts.$accountId.settlements'
+import { Route as AuthenticatedAppAccountsAccountIdReportsRouteImport } from './routes/_authenticated/app.accounts.$accountId.reports'
+import { Route as AuthenticatedAppAccountsAccountIdMembersRouteImport } from './routes/_authenticated/app.accounts.$accountId.members'
+import { Route as AuthenticatedAppAccountsAccountIdHistoryRouteImport } from './routes/_authenticated/app.accounts.$accountId.history'
+import { Route as AuthenticatedAppAccountsAccountIdCategoriesRouteImport } from './routes/_authenticated/app.accounts.$accountId.categories'
+import { Route as AuthenticatedAppAccountsAccountIdTripsNewRouteImport } from './routes/_authenticated/app.accounts.$accountId.trips.new'
+import { Route as AuthenticatedAppAccountsAccountIdTripsTripIdRouteImport } from './routes/_authenticated/app.accounts.$accountId.trips.$tripId'
+import { Route as AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRouteImport } from './routes/_authenticated/app.accounts.$accountId.trips.$tripId.expenses.new'
+import { Route as AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRouteImport } from './routes/_authenticated/app.accounts.$accountId.trips.$tripId.expenses.$expenseId.edit'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -44,103 +44,106 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAppAccountsTripsRoute =
-  AuthenticatedAppAccountsTripsRouteImport.update({
-    id: '/accounts/trips',
-    path: '/accounts/trips',
+const AuthenticatedAppAccountsAccountIdRoute =
+  AuthenticatedAppAccountsAccountIdRouteImport.update({
+    id: '/accounts/$accountId',
+    path: '/accounts/$accountId',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppAccountsSettlementsRoute =
-  AuthenticatedAppAccountsSettlementsRouteImport.update({
-    id: '/accounts/settlements',
-    path: '/accounts/settlements',
-    getParentRoute: () => AuthenticatedAppRoute,
+const AuthenticatedAppAccountsAccountIdTripsRoute =
+  AuthenticatedAppAccountsAccountIdTripsRouteImport.update({
+    id: '/trips',
+    path: '/trips',
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdRoute,
   } as any)
-const AuthenticatedAppAccountsReportsRoute =
-  AuthenticatedAppAccountsReportsRouteImport.update({
-    id: '/accounts/reports',
-    path: '/accounts/reports',
-    getParentRoute: () => AuthenticatedAppRoute,
+const AuthenticatedAppAccountsAccountIdSettlementsRoute =
+  AuthenticatedAppAccountsAccountIdSettlementsRouteImport.update({
+    id: '/settlements',
+    path: '/settlements',
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdRoute,
   } as any)
-const AuthenticatedAppAccountsMembersRoute =
-  AuthenticatedAppAccountsMembersRouteImport.update({
-    id: '/accounts/members',
-    path: '/accounts/members',
-    getParentRoute: () => AuthenticatedAppRoute,
+const AuthenticatedAppAccountsAccountIdReportsRoute =
+  AuthenticatedAppAccountsAccountIdReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdRoute,
   } as any)
-const AuthenticatedAppAccountsHistoryRoute =
-  AuthenticatedAppAccountsHistoryRouteImport.update({
-    id: '/accounts/history',
-    path: '/accounts/history',
-    getParentRoute: () => AuthenticatedAppRoute,
+const AuthenticatedAppAccountsAccountIdMembersRoute =
+  AuthenticatedAppAccountsAccountIdMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdRoute,
   } as any)
-const AuthenticatedAppAccountsCategoriesRoute =
-  AuthenticatedAppAccountsCategoriesRouteImport.update({
-    id: '/accounts/categories',
-    path: '/accounts/categories',
-    getParentRoute: () => AuthenticatedAppRoute,
+const AuthenticatedAppAccountsAccountIdHistoryRoute =
+  AuthenticatedAppAccountsAccountIdHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdRoute,
   } as any)
-const AuthenticatedAppAccountsRoute =
-  AuthenticatedAppAccountsRouteImport.update({
-    id: '/accounts/',
-    path: '/accounts/',
-    getParentRoute: () => AuthenticatedAppRoute,
+const AuthenticatedAppAccountsAccountIdCategoriesRoute =
+  AuthenticatedAppAccountsAccountIdCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdRoute,
   } as any)
-const AuthenticatedAppAccountsTripsNewRoute =
-  AuthenticatedAppAccountsTripsNewRouteImport.update({
+const AuthenticatedAppAccountsAccountIdTripsNewRoute =
+  AuthenticatedAppAccountsAccountIdTripsNewRouteImport.update({
     id: '/new',
     path: '/new',
-    getParentRoute: () => AuthenticatedAppAccountsTripsRoute,
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdTripsRoute,
   } as any)
-const AuthenticatedAppAccountsTripsRoute =
-  AuthenticatedAppAccountsTripsRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAppAccountsTripsRoute,
+const AuthenticatedAppAccountsAccountIdTripsTripIdRoute =
+  AuthenticatedAppAccountsAccountIdTripsTripIdRouteImport.update({
+    id: '/$tripId',
+    path: '/$tripId',
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdTripsRoute,
   } as any)
-const AuthenticatedAppAccountsTripsExpensesNewRoute =
-  AuthenticatedAppAccountsTripsExpensesNewRouteImport.update({
+const AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRoute =
+  AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRouteImport.update({
     id: '/expenses/new',
     path: '/expenses/new',
-    getParentRoute: () => AuthenticatedAppAccountsTripsRoute,
+    getParentRoute: () => AuthenticatedAppAccountsAccountIdTripsTripIdRoute,
   } as any)
-const AuthenticatedAppAccountsTripsExpensesEditRoute =
-  AuthenticatedAppAccountsTripsExpensesEditRouteImport.update({
-    id: '/expenses/edit',
-    path: '/expenses/edit',
-    getParentRoute: () => AuthenticatedAppAccountsTripsRoute,
-  } as any)
+const AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRoute =
+  AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRouteImport.update(
+    {
+      id: '/expenses/$expenseId/edit',
+      path: '/expenses/$expenseId/edit',
+      getParentRoute: () => AuthenticatedAppAccountsAccountIdTripsTripIdRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
-  '/app/accounts/': typeof AuthenticatedAppAccountsRoute
-  '/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
-  '/app/accounts/history': typeof AuthenticatedAppAccountsHistoryRoute
-  '/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
-  '/app/accounts/reports': typeof AuthenticatedAppAccountsReportsRoute
-  '/app/accounts/settlements': typeof AuthenticatedAppAccountsSettlementsRoute
-  '/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRouteWithChildren
-  '/app/accounts/trips/': typeof AuthenticatedAppAccountsTripsRoute
-  '/app/accounts/trips/new': typeof AuthenticatedAppAccountsTripsNewRoute
-  '/app/accounts/trips/expenses/edit': typeof AuthenticatedAppAccountsTripsExpensesEditRoute
-  '/app/accounts/trips/expenses/new': typeof AuthenticatedAppAccountsTripsExpensesNewRoute
+  '/app/accounts/$accountId': typeof AuthenticatedAppAccountsAccountIdRouteWithChildren
+  '/app/accounts/$accountId/categories': typeof AuthenticatedAppAccountsAccountIdCategoriesRoute
+  '/app/accounts/$accountId/history': typeof AuthenticatedAppAccountsAccountIdHistoryRoute
+  '/app/accounts/$accountId/members': typeof AuthenticatedAppAccountsAccountIdMembersRoute
+  '/app/accounts/$accountId/reports': typeof AuthenticatedAppAccountsAccountIdReportsRoute
+  '/app/accounts/$accountId/settlements': typeof AuthenticatedAppAccountsAccountIdSettlementsRoute
+  '/app/accounts/$accountId/trips': typeof AuthenticatedAppAccountsAccountIdTripsRouteWithChildren
+  '/app/accounts/$accountId/trips/$tripId': typeof AuthenticatedAppAccountsAccountIdTripsTripIdRouteWithChildren
+  '/app/accounts/$accountId/trips/new': typeof AuthenticatedAppAccountsAccountIdTripsNewRoute
+  '/app/accounts/$accountId/trips/$tripId/expenses/new': typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRoute
+  '/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit': typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
-  '/app/accounts': typeof AuthenticatedAppAccountsRoute
-  '/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
-  '/app/accounts/history': typeof AuthenticatedAppAccountsHistoryRoute
-  '/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
-  '/app/accounts/reports': typeof AuthenticatedAppAccountsReportsRoute
-  '/app/accounts/settlements': typeof AuthenticatedAppAccountsSettlementsRoute
-  '/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRoute
-  '/app/accounts/trips/new': typeof AuthenticatedAppAccountsTripsNewRoute
-  '/app/accounts/trips/expenses/edit': typeof AuthenticatedAppAccountsTripsExpensesEditRoute
-  '/app/accounts/trips/expenses/new': typeof AuthenticatedAppAccountsTripsExpensesNewRoute
+  '/app/accounts/$accountId': typeof AuthenticatedAppAccountsAccountIdRouteWithChildren
+  '/app/accounts/$accountId/categories': typeof AuthenticatedAppAccountsAccountIdCategoriesRoute
+  '/app/accounts/$accountId/history': typeof AuthenticatedAppAccountsAccountIdHistoryRoute
+  '/app/accounts/$accountId/members': typeof AuthenticatedAppAccountsAccountIdMembersRoute
+  '/app/accounts/$accountId/reports': typeof AuthenticatedAppAccountsAccountIdReportsRoute
+  '/app/accounts/$accountId/settlements': typeof AuthenticatedAppAccountsAccountIdSettlementsRoute
+  '/app/accounts/$accountId/trips': typeof AuthenticatedAppAccountsAccountIdTripsRouteWithChildren
+  '/app/accounts/$accountId/trips/$tripId': typeof AuthenticatedAppAccountsAccountIdTripsTripIdRouteWithChildren
+  '/app/accounts/$accountId/trips/new': typeof AuthenticatedAppAccountsAccountIdTripsNewRoute
+  '/app/accounts/$accountId/trips/$tripId/expenses/new': typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRoute
+  '/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit': typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -148,17 +151,17 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
-  '/_authenticated/app/accounts/': typeof AuthenticatedAppAccountsRoute
-  '/_authenticated/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
-  '/_authenticated/app/accounts/history': typeof AuthenticatedAppAccountsHistoryRoute
-  '/_authenticated/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
-  '/_authenticated/app/accounts/reports': typeof AuthenticatedAppAccountsReportsRoute
-  '/_authenticated/app/accounts/settlements': typeof AuthenticatedAppAccountsSettlementsRoute
-  '/_authenticated/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRouteWithChildren
-  '/_authenticated/app/accounts/trips/': typeof AuthenticatedAppAccountsTripsRoute
-  '/_authenticated/app/accounts/trips/new': typeof AuthenticatedAppAccountsTripsNewRoute
-  '/_authenticated/app/accounts/trips/expenses/edit': typeof AuthenticatedAppAccountsTripsExpensesEditRoute
-  '/_authenticated/app/accounts/trips/expenses/new': typeof AuthenticatedAppAccountsTripsExpensesNewRoute
+  '/_authenticated/app/accounts/$accountId': typeof AuthenticatedAppAccountsAccountIdRouteWithChildren
+  '/_authenticated/app/accounts/$accountId/categories': typeof AuthenticatedAppAccountsAccountIdCategoriesRoute
+  '/_authenticated/app/accounts/$accountId/history': typeof AuthenticatedAppAccountsAccountIdHistoryRoute
+  '/_authenticated/app/accounts/$accountId/members': typeof AuthenticatedAppAccountsAccountIdMembersRoute
+  '/_authenticated/app/accounts/$accountId/reports': typeof AuthenticatedAppAccountsAccountIdReportsRoute
+  '/_authenticated/app/accounts/$accountId/settlements': typeof AuthenticatedAppAccountsAccountIdSettlementsRoute
+  '/_authenticated/app/accounts/$accountId/trips': typeof AuthenticatedAppAccountsAccountIdTripsRouteWithChildren
+  '/_authenticated/app/accounts/$accountId/trips/$tripId': typeof AuthenticatedAppAccountsAccountIdTripsTripIdRouteWithChildren
+  '/_authenticated/app/accounts/$accountId/trips/new': typeof AuthenticatedAppAccountsAccountIdTripsNewRoute
+  '/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/new': typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRoute
+  '/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit': typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -166,49 +169,50 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/app'
-    | '/app/accounts/'
-    | '/app/accounts/categories'
-    | '/app/accounts/history'
-    | '/app/accounts/members'
-    | '/app/accounts/reports'
-    | '/app/accounts/settlements'
-    | '/app/accounts/trips'
-    | '/app/accounts/trips/'
-    | '/app/accounts/trips/new'
-    | '/app/accounts/trips/expenses/edit'
-    | '/app/accounts/trips/expenses/new'
+    | '/app/accounts/$accountId'
+    | '/app/accounts/$accountId/categories'
+    | '/app/accounts/$accountId/history'
+    | '/app/accounts/$accountId/members'
+    | '/app/accounts/$accountId/reports'
+    | '/app/accounts/$accountId/settlements'
+    | '/app/accounts/$accountId/trips'
+    | '/app/accounts/$accountId/trips/$tripId'
+    | '/app/accounts/$accountId/trips/new'
+    | '/app/accounts/$accountId/trips/$tripId/expenses/new'
+    | '/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/app'
-    | '/app/accounts'
-    | '/app/accounts/categories'
-    | '/app/accounts/history'
-    | '/app/accounts/members'
-    | '/app/accounts/reports'
-    | '/app/accounts/settlements'
-    | '/app/accounts/trips'
-    | '/app/accounts/trips/new'
-    | '/app/accounts/trips/expenses/edit'
-    | '/app/accounts/trips/expenses/new'
+    | '/app/accounts/$accountId'
+    | '/app/accounts/$accountId/categories'
+    | '/app/accounts/$accountId/history'
+    | '/app/accounts/$accountId/members'
+    | '/app/accounts/$accountId/reports'
+    | '/app/accounts/$accountId/settlements'
+    | '/app/accounts/$accountId/trips'
+    | '/app/accounts/$accountId/trips/$tripId'
+    | '/app/accounts/$accountId/trips/new'
+    | '/app/accounts/$accountId/trips/$tripId/expenses/new'
+    | '/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/app'
-    | '/_authenticated/app/accounts/'
-    | '/_authenticated/app/accounts/categories'
-    | '/_authenticated/app/accounts/history'
-    | '/_authenticated/app/accounts/members'
-    | '/_authenticated/app/accounts/reports'
-    | '/_authenticated/app/accounts/settlements'
-    | '/_authenticated/app/accounts/trips'
-    | '/_authenticated/app/accounts/trips/'
-    | '/_authenticated/app/accounts/trips/new'
-    | '/_authenticated/app/accounts/trips/expenses/edit'
-    | '/_authenticated/app/accounts/trips/expenses/new'
+    | '/_authenticated/app/accounts/$accountId'
+    | '/_authenticated/app/accounts/$accountId/categories'
+    | '/_authenticated/app/accounts/$accountId/history'
+    | '/_authenticated/app/accounts/$accountId/members'
+    | '/_authenticated/app/accounts/$accountId/reports'
+    | '/_authenticated/app/accounts/$accountId/settlements'
+    | '/_authenticated/app/accounts/$accountId/trips'
+    | '/_authenticated/app/accounts/$accountId/trips/$tripId'
+    | '/_authenticated/app/accounts/$accountId/trips/new'
+    | '/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/new'
+    | '/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -247,130 +251,159 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/app/accounts/trips': {
-      id: '/_authenticated/app/accounts/trips'
-      path: '/accounts/trips'
-      fullPath: '/app/accounts/trips'
-      preLoaderRoute: typeof AuthenticatedAppAccountsTripsRouteImport
+    '/_authenticated/app/accounts/$accountId': {
+      id: '/_authenticated/app/accounts/$accountId'
+      path: '/accounts/$accountId'
+      fullPath: '/app/accounts/$accountId'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/accounts/settlements': {
-      id: '/_authenticated/app/accounts/settlements'
-      path: '/accounts/settlements'
-      fullPath: '/app/accounts/settlements'
-      preLoaderRoute: typeof AuthenticatedAppAccountsSettlementsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+    '/_authenticated/app/accounts/$accountId/trips': {
+      id: '/_authenticated/app/accounts/$accountId/trips'
+      path: '/trips'
+      fullPath: '/app/accounts/$accountId/trips'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdTripsRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdRoute
     }
-    '/_authenticated/app/accounts/reports': {
-      id: '/_authenticated/app/accounts/reports'
-      path: '/accounts/reports'
-      fullPath: '/app/accounts/reports'
-      preLoaderRoute: typeof AuthenticatedAppAccountsReportsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+    '/_authenticated/app/accounts/$accountId/settlements': {
+      id: '/_authenticated/app/accounts/$accountId/settlements'
+      path: '/settlements'
+      fullPath: '/app/accounts/$accountId/settlements'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdSettlementsRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdRoute
     }
-    '/_authenticated/app/accounts/members': {
-      id: '/_authenticated/app/accounts/members'
-      path: '/accounts/members'
-      fullPath: '/app/accounts/members'
-      preLoaderRoute: typeof AuthenticatedAppAccountsMembersRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+    '/_authenticated/app/accounts/$accountId/reports': {
+      id: '/_authenticated/app/accounts/$accountId/reports'
+      path: '/reports'
+      fullPath: '/app/accounts/$accountId/reports'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdReportsRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdRoute
     }
-    '/_authenticated/app/accounts/history': {
-      id: '/_authenticated/app/accounts/history'
-      path: '/accounts/history'
-      fullPath: '/app/accounts/history'
-      preLoaderRoute: typeof AuthenticatedAppAccountsHistoryRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+    '/_authenticated/app/accounts/$accountId/members': {
+      id: '/_authenticated/app/accounts/$accountId/members'
+      path: '/members'
+      fullPath: '/app/accounts/$accountId/members'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdMembersRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdRoute
     }
-    '/_authenticated/app/accounts/categories': {
-      id: '/_authenticated/app/accounts/categories'
-      path: '/accounts/categories'
-      fullPath: '/app/accounts/categories'
-      preLoaderRoute: typeof AuthenticatedAppAccountsCategoriesRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+    '/_authenticated/app/accounts/$accountId/history': {
+      id: '/_authenticated/app/accounts/$accountId/history'
+      path: '/history'
+      fullPath: '/app/accounts/$accountId/history'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdHistoryRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdRoute
     }
-    '/_authenticated/app/accounts/': {
-      id: '/_authenticated/app/accounts/'
-      path: '/accounts'
-      fullPath: '/app/accounts/'
-      preLoaderRoute: typeof AuthenticatedAppAccountsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
+    '/_authenticated/app/accounts/$accountId/categories': {
+      id: '/_authenticated/app/accounts/$accountId/categories'
+      path: '/categories'
+      fullPath: '/app/accounts/$accountId/categories'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdRoute
     }
-    '/_authenticated/app/accounts/trips/new': {
-      id: '/_authenticated/app/accounts/trips/new'
+    '/_authenticated/app/accounts/$accountId/trips/new': {
+      id: '/_authenticated/app/accounts/$accountId/trips/new'
       path: '/new'
-      fullPath: '/app/accounts/trips/new'
-      preLoaderRoute: typeof AuthenticatedAppAccountsTripsNewRouteImport
-      parentRoute: typeof AuthenticatedAppAccountsTripsRoute
+      fullPath: '/app/accounts/$accountId/trips/new'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdTripsNewRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdTripsRoute
     }
-    '/_authenticated/app/accounts/trips/': {
-      id: '/_authenticated/app/accounts/trips/'
-      path: '/'
-      fullPath: '/app/accounts/trips/'
-      preLoaderRoute: typeof AuthenticatedAppAccountsTripsRouteImport
-      parentRoute: typeof AuthenticatedAppAccountsTripsRoute
+    '/_authenticated/app/accounts/$accountId/trips/$tripId': {
+      id: '/_authenticated/app/accounts/$accountId/trips/$tripId'
+      path: '/$tripId'
+      fullPath: '/app/accounts/$accountId/trips/$tripId'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdTripsTripIdRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdTripsRoute
     }
-    '/_authenticated/app/accounts/trips/expenses/new': {
-      id: '/_authenticated/app/accounts/trips/expenses/new'
+    '/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/new': {
+      id: '/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/new'
       path: '/expenses/new'
-      fullPath: '/app/accounts/trips/expenses/new'
-      preLoaderRoute: typeof AuthenticatedAppAccountsTripsExpensesNewRouteImport
-      parentRoute: typeof AuthenticatedAppAccountsTripsRoute
+      fullPath: '/app/accounts/$accountId/trips/$tripId/expenses/new'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdTripsTripIdRoute
     }
-    '/_authenticated/app/accounts/trips/expenses/edit': {
-      id: '/_authenticated/app/accounts/trips/expenses/edit'
-      path: '/expenses/edit'
-      fullPath: '/app/accounts/trips/expenses/edit'
-      preLoaderRoute: typeof AuthenticatedAppAccountsTripsExpensesEditRouteImport
-      parentRoute: typeof AuthenticatedAppAccountsTripsRoute
+    '/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit': {
+      id: '/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit'
+      path: '/expenses/$expenseId/edit'
+      fullPath: '/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit'
+      preLoaderRoute: typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsAccountIdTripsTripIdRoute
     }
   }
 }
 
-interface AuthenticatedAppAccountsTripsRouteChildren {
-  AuthenticatedAppAccountsTripsRoute: typeof AuthenticatedAppAccountsTripsRoute
-  AuthenticatedAppAccountsTripsNewRoute: typeof AuthenticatedAppAccountsTripsNewRoute
-  AuthenticatedAppAccountsTripsExpensesEditRoute: typeof AuthenticatedAppAccountsTripsExpensesEditRoute
-  AuthenticatedAppAccountsTripsExpensesNewRoute: typeof AuthenticatedAppAccountsTripsExpensesNewRoute
+interface AuthenticatedAppAccountsAccountIdTripsTripIdRouteChildren {
+  AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRoute: typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRoute
+  AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRoute: typeof AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRoute
 }
 
-const AuthenticatedAppAccountsTripsRouteChildren: AuthenticatedAppAccountsTripsRouteChildren =
+const AuthenticatedAppAccountsAccountIdTripsTripIdRouteChildren: AuthenticatedAppAccountsAccountIdTripsTripIdRouteChildren =
   {
-    AuthenticatedAppAccountsTripsRoute: AuthenticatedAppAccountsTripsRoute,
-    AuthenticatedAppAccountsTripsNewRoute:
-      AuthenticatedAppAccountsTripsNewRoute,
-    AuthenticatedAppAccountsTripsExpensesEditRoute:
-      AuthenticatedAppAccountsTripsExpensesEditRoute,
-    AuthenticatedAppAccountsTripsExpensesNewRoute:
-      AuthenticatedAppAccountsTripsExpensesNewRoute,
+    AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRoute:
+      AuthenticatedAppAccountsAccountIdTripsTripIdExpensesNewRoute,
+    AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRoute:
+      AuthenticatedAppAccountsAccountIdTripsTripIdExpensesExpenseIdEditRoute,
   }
 
-const AuthenticatedAppAccountsTripsRouteWithChildren =
-  AuthenticatedAppAccountsTripsRoute._addFileChildren(
-    AuthenticatedAppAccountsTripsRouteChildren,
+const AuthenticatedAppAccountsAccountIdTripsTripIdRouteWithChildren =
+  AuthenticatedAppAccountsAccountIdTripsTripIdRoute._addFileChildren(
+    AuthenticatedAppAccountsAccountIdTripsTripIdRouteChildren,
+  )
+
+interface AuthenticatedAppAccountsAccountIdTripsRouteChildren {
+  AuthenticatedAppAccountsAccountIdTripsTripIdRoute: typeof AuthenticatedAppAccountsAccountIdTripsTripIdRouteWithChildren
+  AuthenticatedAppAccountsAccountIdTripsNewRoute: typeof AuthenticatedAppAccountsAccountIdTripsNewRoute
+}
+
+const AuthenticatedAppAccountsAccountIdTripsRouteChildren: AuthenticatedAppAccountsAccountIdTripsRouteChildren =
+  {
+    AuthenticatedAppAccountsAccountIdTripsTripIdRoute:
+      AuthenticatedAppAccountsAccountIdTripsTripIdRouteWithChildren,
+    AuthenticatedAppAccountsAccountIdTripsNewRoute:
+      AuthenticatedAppAccountsAccountIdTripsNewRoute,
+  }
+
+const AuthenticatedAppAccountsAccountIdTripsRouteWithChildren =
+  AuthenticatedAppAccountsAccountIdTripsRoute._addFileChildren(
+    AuthenticatedAppAccountsAccountIdTripsRouteChildren,
+  )
+
+interface AuthenticatedAppAccountsAccountIdRouteChildren {
+  AuthenticatedAppAccountsAccountIdCategoriesRoute: typeof AuthenticatedAppAccountsAccountIdCategoriesRoute
+  AuthenticatedAppAccountsAccountIdHistoryRoute: typeof AuthenticatedAppAccountsAccountIdHistoryRoute
+  AuthenticatedAppAccountsAccountIdMembersRoute: typeof AuthenticatedAppAccountsAccountIdMembersRoute
+  AuthenticatedAppAccountsAccountIdReportsRoute: typeof AuthenticatedAppAccountsAccountIdReportsRoute
+  AuthenticatedAppAccountsAccountIdSettlementsRoute: typeof AuthenticatedAppAccountsAccountIdSettlementsRoute
+  AuthenticatedAppAccountsAccountIdTripsRoute: typeof AuthenticatedAppAccountsAccountIdTripsRouteWithChildren
+}
+
+const AuthenticatedAppAccountsAccountIdRouteChildren: AuthenticatedAppAccountsAccountIdRouteChildren =
+  {
+    AuthenticatedAppAccountsAccountIdCategoriesRoute:
+      AuthenticatedAppAccountsAccountIdCategoriesRoute,
+    AuthenticatedAppAccountsAccountIdHistoryRoute:
+      AuthenticatedAppAccountsAccountIdHistoryRoute,
+    AuthenticatedAppAccountsAccountIdMembersRoute:
+      AuthenticatedAppAccountsAccountIdMembersRoute,
+    AuthenticatedAppAccountsAccountIdReportsRoute:
+      AuthenticatedAppAccountsAccountIdReportsRoute,
+    AuthenticatedAppAccountsAccountIdSettlementsRoute:
+      AuthenticatedAppAccountsAccountIdSettlementsRoute,
+    AuthenticatedAppAccountsAccountIdTripsRoute:
+      AuthenticatedAppAccountsAccountIdTripsRouteWithChildren,
+  }
+
+const AuthenticatedAppAccountsAccountIdRouteWithChildren =
+  AuthenticatedAppAccountsAccountIdRoute._addFileChildren(
+    AuthenticatedAppAccountsAccountIdRouteChildren,
   )
 
 interface AuthenticatedAppRouteChildren {
-  AuthenticatedAppAccountsRoute: typeof AuthenticatedAppAccountsRoute
-  AuthenticatedAppAccountsCategoriesRoute: typeof AuthenticatedAppAccountsCategoriesRoute
-  AuthenticatedAppAccountsHistoryRoute: typeof AuthenticatedAppAccountsHistoryRoute
-  AuthenticatedAppAccountsMembersRoute: typeof AuthenticatedAppAccountsMembersRoute
-  AuthenticatedAppAccountsReportsRoute: typeof AuthenticatedAppAccountsReportsRoute
-  AuthenticatedAppAccountsSettlementsRoute: typeof AuthenticatedAppAccountsSettlementsRoute
-  AuthenticatedAppAccountsTripsRoute: typeof AuthenticatedAppAccountsTripsRouteWithChildren
+  AuthenticatedAppAccountsAccountIdRoute: typeof AuthenticatedAppAccountsAccountIdRouteWithChildren
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
-  AuthenticatedAppAccountsRoute: AuthenticatedAppAccountsRoute,
-  AuthenticatedAppAccountsCategoriesRoute:
-    AuthenticatedAppAccountsCategoriesRoute,
-  AuthenticatedAppAccountsHistoryRoute: AuthenticatedAppAccountsHistoryRoute,
-  AuthenticatedAppAccountsMembersRoute: AuthenticatedAppAccountsMembersRoute,
-  AuthenticatedAppAccountsReportsRoute: AuthenticatedAppAccountsReportsRoute,
-  AuthenticatedAppAccountsSettlementsRoute:
-    AuthenticatedAppAccountsSettlementsRoute,
-  AuthenticatedAppAccountsTripsRoute:
-    AuthenticatedAppAccountsTripsRouteWithChildren,
+  AuthenticatedAppAccountsAccountIdRoute:
+    AuthenticatedAppAccountsAccountIdRouteWithChildren,
 }
 
 const AuthenticatedAppRouteWithChildren =

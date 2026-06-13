@@ -9,7 +9,7 @@ import { computeNetBalances, minimizeSettlements, type ExpenseRow, type Settleme
 import { formatDate, formatZAR } from "@/lib/format";
 import { Plus, ArrowRight } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId")({
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(accountDataQO(params.accountId)),
   component: AccountDashboard,

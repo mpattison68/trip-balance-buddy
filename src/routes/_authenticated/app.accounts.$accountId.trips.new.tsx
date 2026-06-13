@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createTrip } from "@/lib/data.functions";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/trips/new")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/trips/new")({
   component: NewTripPage,
 });
 

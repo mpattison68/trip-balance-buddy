@@ -7,7 +7,7 @@ import { formatDate, formatZAR } from "@/lib/format";
 import { computeNetBalances, minimizeSettlements } from "@/lib/calc";
 import { Download } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/reports")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/reports")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(accountDataQO(params.accountId)),
   component: ReportsPage,
 });

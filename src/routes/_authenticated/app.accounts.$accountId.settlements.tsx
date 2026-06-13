@@ -15,7 +15,7 @@ import { formatDate, formatZAR } from "@/lib/format";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/settlements")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/settlements")({
   loader: ({ context, params }) =>
     Promise.all([
       context.queryClient.ensureQueryData(settlementsQO(params.accountId)),

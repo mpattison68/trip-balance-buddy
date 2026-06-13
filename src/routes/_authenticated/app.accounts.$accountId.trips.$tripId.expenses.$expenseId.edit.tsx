@@ -7,7 +7,7 @@ import { ExpenseForm } from "@/components/ExpenseForm";
 import { saveExpense } from "@/lib/data.functions";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/trips/expenses/edit")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit")({
   loader: ({ context, params }) =>
     Promise.all([
       context.queryClient.ensureQueryData(membersQO(params.accountId)),

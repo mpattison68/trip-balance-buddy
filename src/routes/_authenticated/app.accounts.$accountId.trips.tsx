@@ -10,7 +10,7 @@ import { formatDate, formatZAR } from "@/lib/format";
 import { computeNetBalances, minimizeSettlements } from "@/lib/calc";
 import { Plus } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/trips")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/trips")({
   loader: ({ context, params }) =>
     Promise.all([
       context.queryClient.ensureQueryData(tripsQO(params.accountId)),
