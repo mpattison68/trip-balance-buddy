@@ -96,12 +96,17 @@ export const updateMember = createServerFn({ method: "POST" })
         .parse(d),
   )
   .handler(async ({ context, data }) => {
-    const patch: Record<string, any> = {};
-    if (data.name !== undefined) patch.name = data.name;
-    if (data.role !== undefined) patch.role = data.role;
-    if (data.archived !== undefined)
-      patch.archived_at = data.archived ? new Date().toISOString() : null;
-    const { error } = await context.supabase.from("account_members").update(patch).eq("id", data.id);
+    const patch = {
+      ...(data.name !== undefined ? { name: data.name } : {}),
+      ...(data.role !== undefined ? { role: data.role } : {}),
+      ...(data.archived !== undefined
+        ? { archived_at: data.archived ? new Date().toISOString() : null }
+        : {}),
+    };
+    const { error } = await context.supabase
+      .from("account_members")
+      .update(patch)
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -219,14 +224,16 @@ export const updateTrip = createServerFn({ method: "POST" })
         .parse(d),
   )
   .handler(async ({ context, data }) => {
-    const patch: Record<string, any> = {};
-    if (data.name !== undefined) patch.name = data.name;
-    if (data.startDate !== undefined) patch.start_date = data.startDate || null;
-    if (data.endDate !== undefined) patch.end_date = data.endDate || null;
-    if (data.notes !== undefined) patch.notes = data.notes || null;
-    if (data.status !== undefined) patch.status = data.status;
-    if (data.archived !== undefined)
-      patch.archived_at = data.archived ? new Date().toISOString() : null;
+    const patch = {
+      ...(data.name !== undefined ? { name: data.name } : {}),
+      ...(data.startDate !== undefined ? { start_date: data.startDate || null } : {}),
+      ...(data.endDate !== undefined ? { end_date: data.endDate || null } : {}),
+      ...(data.notes !== undefined ? { notes: data.notes || null } : {}),
+      ...(data.status !== undefined ? { status: data.status } : {}),
+      ...(data.archived !== undefined
+        ? { archived_at: data.archived ? new Date().toISOString() : null }
+        : {}),
+    };
     const { error } = await context.supabase.from("trips").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
