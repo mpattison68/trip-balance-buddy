@@ -96,7 +96,7 @@ export const updateMember = createServerFn({ method: "POST" })
         .parse(d),
   )
   .handler(async ({ context, data }) => {
-    const patch: Record<string, unknown> = {};
+    const patch: Record<string, any> = {};
     if (data.name !== undefined) patch.name = data.name;
     if (data.role !== undefined) patch.role = data.role;
     if (data.archived !== undefined)
@@ -219,7 +219,7 @@ export const updateTrip = createServerFn({ method: "POST" })
         .parse(d),
   )
   .handler(async ({ context, data }) => {
-    const patch: Record<string, unknown> = {};
+    const patch: Record<string, any> = {};
     if (data.name !== undefined) patch.name = data.name;
     if (data.startDate !== undefined) patch.start_date = data.startDate || null;
     if (data.endDate !== undefined) patch.end_date = data.endDate || null;
