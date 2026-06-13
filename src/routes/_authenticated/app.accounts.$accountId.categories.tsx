@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { addCategory } from "@/lib/data.functions";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/categories")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/categories")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(categoriesQO(params.accountId)),
   component: CategoriesPage,
 });

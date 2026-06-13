@@ -5,7 +5,7 @@ import { AppShell, PageHeader, cardCls } from "@/components/AppShell";
 import { computeNetBalances, minimizeSettlements } from "@/lib/calc";
 import { formatDate, formatZAR } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/app/accounts/history")({
+export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/history")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(accountDataQO(params.accountId)),
   component: HistoryPage,
 });
