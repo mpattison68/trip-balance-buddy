@@ -13,6 +13,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAppAccountsMembersRouteImport } from './routes/_authenticated/app.accounts..members'
+import { Route as AuthenticatedAppAccountsCategoriesRouteImport } from './routes/_authenticated/app.accounts..categories'
 import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenticated/app.accounts.'
 
 const AuthRoute = AuthRouteImport.update({
@@ -34,6 +36,18 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppAccountsMembersRoute =
+  AuthenticatedAppAccountsMembersRouteImport.update({
+    id: '/accounts/members',
+    path: '/accounts/members',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppAccountsCategoriesRoute =
+  AuthenticatedAppAccountsCategoriesRouteImport.update({
+    id: '/accounts/categories',
+    path: '/accounts/categories',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppAccountsRoute =
   AuthenticatedAppAccountsRouteImport.update({
     id: '/accounts/',
@@ -46,12 +60,16 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/accounts/': typeof AuthenticatedAppAccountsRoute
+  '/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
+  '/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/accounts': typeof AuthenticatedAppAccountsRoute
+  '/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
+  '/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -60,12 +78,26 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/accounts/': typeof AuthenticatedAppAccountsRoute
+  '/_authenticated/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
+  '/_authenticated/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/app' | '/app/accounts/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/app/accounts/'
+    | '/app/accounts/categories'
+    | '/app/accounts/members'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/app' | '/app/accounts'
+  to:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/app/accounts'
+    | '/app/accounts/categories'
+    | '/app/accounts/members'
   id:
     | '__root__'
     | '/'
@@ -73,6 +105,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/app'
     | '/_authenticated/app/accounts/'
+    | '/_authenticated/app/accounts/categories'
+    | '/_authenticated/app/accounts/members'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -111,6 +145,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/accounts/members': {
+      id: '/_authenticated/app/accounts/members'
+      path: '/accounts/members'
+      fullPath: '/app/accounts/members'
+      preLoaderRoute: typeof AuthenticatedAppAccountsMembersRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/accounts/categories': {
+      id: '/_authenticated/app/accounts/categories'
+      path: '/accounts/categories'
+      fullPath: '/app/accounts/categories'
+      preLoaderRoute: typeof AuthenticatedAppAccountsCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/accounts/': {
       id: '/_authenticated/app/accounts/'
       path: '/accounts'
@@ -123,10 +171,15 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAccountsRoute: typeof AuthenticatedAppAccountsRoute
+  AuthenticatedAppAccountsCategoriesRoute: typeof AuthenticatedAppAccountsCategoriesRoute
+  AuthenticatedAppAccountsMembersRoute: typeof AuthenticatedAppAccountsMembersRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAccountsRoute: AuthenticatedAppAccountsRoute,
+  AuthenticatedAppAccountsCategoriesRoute:
+    AuthenticatedAppAccountsCategoriesRoute,
+  AuthenticatedAppAccountsMembersRoute: AuthenticatedAppAccountsMembersRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
