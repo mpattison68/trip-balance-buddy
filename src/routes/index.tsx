@@ -26,7 +26,7 @@ function Index() {
           </Link>
           <div className="flex gap-2">
             <Button asChild variant="ghost"><Link to="/auth">Sign in</Link></Button>
-            <Button asChild><Link to="/auth" search={{ mode: "signup" }}>Get started</Link></Button>
+            <Button asChild><Link to="/auth">Get started</Link></Button>
           </div>
         </div>
       </header>
@@ -42,7 +42,7 @@ function Index() {
           </p>
           <div className="mt-8 flex justify-center gap-3">
             <Button size="lg" asChild>
-              <Link to="/auth" search={{ mode: "signup" }}>Create your account</Link>
+              <Link to="/auth">Create your account</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/auth">Sign in</Link>
