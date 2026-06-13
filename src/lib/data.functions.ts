@@ -505,7 +505,7 @@ export const getAccountData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { accountId: string }) => z.object({ accountId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    const [account, members, trips, expenses, settlements] = await Promise.all([
+    const [account, members, trips, expensesRes, settlementsRes] = await Promise.all([
       context.supabase.from("accounts").select("*").eq("id", data.accountId).single(),
       context.supabase
         .from("account_members")
@@ -528,28 +528,24 @@ export const getAccountData = createServerFn({ method: "GET" })
         .is("archived_at", null),
     ]);
     if (account.error) throw new Error(account.error.message);
-    const expenseIds = (expenses.data ?? []).map((e) => e.id);
-    const [contribs, shares] = await Promise.all([
-      expenseIds.length
-        ? context.supabase
-            .from("expense_contributions")
-            .select("expense_id, member_id, amount")
-            .in("expense_id", expenseIds)
-        : Promise.resolve({ data: [], error: null } as { data: any[]; error: null }),
-      expenseIds.length
-        ? context.supabase
-            .from("expense_shares")
-            .select("expense_id, member_id, percentage")
-            .in("expense_id", expenseIds)
-        : Promise.resolve({ data: [], error: null } as { data: any[]; error: null }),
-    ]);
+    const expenses = expensesRes.data ?? [];
+    const settlements = settlementsRes.data ?? [];
+    const expenseIds = expenses.map((e) => e.id);
+    const contribsRes = await context.supabase
+      .from("expense_contributions")
+      .select("expense_id, member_id, amount")
+      .in("expense_id", expenseIds.length ? expenseIds : ["00000000-0000-0000-0000-000000000000"]);
+    const sharesRes = await context.supabase
+      .from("expense_shares")
+      .select("expense_id, member_id, percentage")
+      .in("expense_id", expenseIds.length ? expenseIds : ["00000000-0000-0000-0000-000000000000"]);
     return {
       account: account.data,
       members: members.data ?? [],
       trips: trips.data ?? [],
-      expenses: expenses.data ?? [],
-      settlements: settlements.data ?? [],
-      contributions: (contribs as any).data ?? [],
-      shares: (shares as any).data ?? [],
+      expenses,
+      settlements,
+      contributions: contribsRes.data ?? [],
+      shares: sharesRes.data ?? [],
     };
   });
