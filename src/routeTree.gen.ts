@@ -17,6 +17,7 @@ import { Route as AuthenticatedAppAccountsTripsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppAccountsMembersRouteImport } from './routes/_authenticated/app.accounts..members'
 import { Route as AuthenticatedAppAccountsCategoriesRouteImport } from './routes/_authenticated/app.accounts..categories'
 import { Route as AuthenticatedAppAccountsRouteImport } from './routes/_authenticated/app.accounts.'
+import { Route as AuthenticatedAppAccountsTripsNewRouteImport } from './routes/_authenticated/app.accounts..trips.new'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -61,6 +62,12 @@ const AuthenticatedAppAccountsRoute =
     path: '/accounts/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppAccountsTripsNewRoute =
+  AuthenticatedAppAccountsTripsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAppAccountsTripsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -69,7 +76,8 @@ export interface FileRoutesByFullPath {
   '/app/accounts/': typeof AuthenticatedAppAccountsRoute
   '/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
   '/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
-  '/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRoute
+  '/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRouteWithChildren
+  '/app/accounts/trips/new': typeof AuthenticatedAppAccountsTripsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,7 +86,8 @@ export interface FileRoutesByTo {
   '/app/accounts': typeof AuthenticatedAppAccountsRoute
   '/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
   '/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
-  '/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRoute
+  '/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRouteWithChildren
+  '/app/accounts/trips/new': typeof AuthenticatedAppAccountsTripsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,7 +98,8 @@ export interface FileRoutesById {
   '/_authenticated/app/accounts/': typeof AuthenticatedAppAccountsRoute
   '/_authenticated/app/accounts/categories': typeof AuthenticatedAppAccountsCategoriesRoute
   '/_authenticated/app/accounts/members': typeof AuthenticatedAppAccountsMembersRoute
-  '/_authenticated/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRoute
+  '/_authenticated/app/accounts/trips': typeof AuthenticatedAppAccountsTripsRouteWithChildren
+  '/_authenticated/app/accounts/trips/new': typeof AuthenticatedAppAccountsTripsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +111,7 @@ export interface FileRouteTypes {
     | '/app/accounts/categories'
     | '/app/accounts/members'
     | '/app/accounts/trips'
+    | '/app/accounts/trips/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -110,6 +121,7 @@ export interface FileRouteTypes {
     | '/app/accounts/categories'
     | '/app/accounts/members'
     | '/app/accounts/trips'
+    | '/app/accounts/trips/new'
   id:
     | '__root__'
     | '/'
@@ -120,6 +132,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/accounts/categories'
     | '/_authenticated/app/accounts/members'
     | '/_authenticated/app/accounts/trips'
+    | '/_authenticated/app/accounts/trips/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,14 +199,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAccountsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/accounts/trips/new': {
+      id: '/_authenticated/app/accounts/trips/new'
+      path: '/new'
+      fullPath: '/app/accounts/trips/new'
+      preLoaderRoute: typeof AuthenticatedAppAccountsTripsNewRouteImport
+      parentRoute: typeof AuthenticatedAppAccountsTripsRoute
+    }
   }
 }
+
+interface AuthenticatedAppAccountsTripsRouteChildren {
+  AuthenticatedAppAccountsTripsNewRoute: typeof AuthenticatedAppAccountsTripsNewRoute
+}
+
+const AuthenticatedAppAccountsTripsRouteChildren: AuthenticatedAppAccountsTripsRouteChildren =
+  {
+    AuthenticatedAppAccountsTripsNewRoute:
+      AuthenticatedAppAccountsTripsNewRoute,
+  }
+
+const AuthenticatedAppAccountsTripsRouteWithChildren =
+  AuthenticatedAppAccountsTripsRoute._addFileChildren(
+    AuthenticatedAppAccountsTripsRouteChildren,
+  )
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAccountsRoute: typeof AuthenticatedAppAccountsRoute
   AuthenticatedAppAccountsCategoriesRoute: typeof AuthenticatedAppAccountsCategoriesRoute
   AuthenticatedAppAccountsMembersRoute: typeof AuthenticatedAppAccountsMembersRoute
-  AuthenticatedAppAccountsTripsRoute: typeof AuthenticatedAppAccountsTripsRoute
+  AuthenticatedAppAccountsTripsRoute: typeof AuthenticatedAppAccountsTripsRouteWithChildren
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
@@ -201,7 +236,8 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAccountsCategoriesRoute:
     AuthenticatedAppAccountsCategoriesRoute,
   AuthenticatedAppAccountsMembersRoute: AuthenticatedAppAccountsMembersRoute,
-  AuthenticatedAppAccountsTripsRoute: AuthenticatedAppAccountsTripsRoute,
+  AuthenticatedAppAccountsTripsRoute:
+    AuthenticatedAppAccountsTripsRouteWithChildren,
 }
 
 const AuthenticatedAppRouteWithChildren =
