@@ -63,7 +63,6 @@ docker compose down
 | `SUPABASE_URL`                    | runtime (server) | yes    | Same value as `VITE_SUPABASE_URL` |
 | `SUPABASE_PUBLISHABLE_KEY`        | runtime (server) | yes    | Same value as `VITE_SUPABASE_PUBLISHABLE_KEY` |
 | `SUPABASE_PROJECT_ID`             | runtime (server) | yes    | Same value as `VITE_SUPABASE_PROJECT_ID` |
-| `LOVABLE_API_KEY`                 | runtime (server) | only if Google sign-in is used | Google OAuth currently goes through the Lovable broker. Copy from Lovable → Project Settings → Secrets. |
 | `PORT`                            | runtime          | no       | Defaults to `3000` |
 | `HOST`                            | runtime          | no       | Defaults to `0.0.0.0` |
 | `NODE_ENV`                        | runtime          | no       | `production` in Docker |
@@ -74,7 +73,7 @@ See `.env.example` for a copy-pasteable template.
 
 1. Install Docker + Docker Compose plugin on the VPS (`apt install docker.io docker-compose-plugin` or use Hostinger's Docker template).
 2. `git clone` this repo (after connecting it to GitHub from the Lovable UI) onto the VPS.
-3. `cp .env.example .env` and fill in the Supabase values (and `LOVABLE_API_KEY` if you want Google sign-in to keep working).
+3. `cp .env.example .env` and fill in the Supabase values.
 4. `docker compose up -d --build`.
 5. Point your reverse proxy (nginx / Caddy / Traefik / Hostinger's built-in) at `http://127.0.0.1:3000` and terminate TLS there.
 6. To deploy a new build: `git pull && docker compose up -d --build`.
@@ -82,5 +81,26 @@ See `.env.example` for a copy-pasteable template.
 ### Notes / caveats
 
 - **Supabase**: This deployment still uses the Lovable Cloud Supabase project — schema, auth, RLS, and email continue to be managed there. Self-hosting only moves the frontend/SSR layer onto your VPS.
-- **Google sign-in**: Goes through the Lovable OAuth broker, which requires `LOVABLE_API_KEY` at runtime. Email/password and password reset work without it.
-- **Password reset emails** still link back to whatever site URL is configured in Supabase Auth — update that to your VPS domain once it is live, otherwise the reset link will land on the Lovable preview/published URL.
+- **Google sign-in**: Uses Supabase's direct Google OAuth (no Lovable broker, no `LOVABLE_API_KEY` needed). You must configure the Google provider in Supabase Auth and add your VPS URL to the redirect allow list — see below.
+- **Password reset & OAuth redirect emails** link back to whatever Site URL / Redirect URLs are configured in Supabase Auth — update those to your VPS domain once it is live, otherwise links will land on the Lovable preview/published URL.
+
+### Supabase Auth configuration for `https://trip-balance.clickcraft.tech`
+
+In Supabase Auth settings (Authentication → URL Configuration):
+
+- **Site URL**: `https://trip-balance.clickcraft.tech`
+- **Additional Redirect URLs** (one per line):
+  - `https://trip-balance.clickcraft.tech/**`
+  - `https://trip-balance.clickcraft.tech/auth`
+  - `https://trip-balance.clickcraft.tech/reset-password`
+  - (keep any existing Lovable preview / published URLs you still use)
+
+In Authentication → Providers → Google:
+
+1. Enable the Google provider.
+2. Create an OAuth 2.0 Client ID in Google Cloud Console (type: Web application).
+3. Under **Authorized redirect URIs** in Google Cloud, add the Supabase callback URL shown on the Supabase Google provider page — it looks like:
+   `https://<your-supabase-ref>.supabase.co/auth/v1/callback`
+4. Paste the Google **Client ID** and **Client Secret** into the Supabase Google provider settings and save.
+
+Google returns to Supabase's `/auth/v1/callback`, Supabase then redirects to `https://trip-balance.clickcraft.tech/auth`, and the Supabase JS client picks up the session from the URL automatically.
