@@ -99,8 +99,10 @@ In Authentication → Providers → Google:
 
 1. Enable the Google provider.
 2. Create an OAuth 2.0 Client ID in Google Cloud Console (type: Web application).
-3. Under **Authorized redirect URIs** in Google Cloud, add the Supabase callback URL shown on the Supabase Google provider page — it looks like:
-   `https://<your-supabase-ref>.supabase.co/auth/v1/callback`
+3. Under **Authorized redirect URIs** in Google Cloud, add **exactly**:
+   - `https://oktwzbqjplwljaaetovq.supabase.co/auth/v1/callback`
 4. Paste the Google **Client ID** and **Client Secret** into the Supabase Google provider settings and save.
 
-Google returns to Supabase's `/auth/v1/callback`, Supabase then redirects to `https://trip-balance.clickcraft.tech/auth`, and the Supabase JS client picks up the session from the URL automatically.
+**Exact Supabase callback URL:** `https://oktwzbqjplwljaaetovq.supabase.co/auth/v1/callback`
+
+Google returns to this Supabase callback, Supabase then redirects to `https://trip-balance.clickcraft.tech/auth`, and the Supabase JS client picks up the session from the URL automatically.
