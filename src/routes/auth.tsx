@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Wallet } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Wallet, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -218,6 +219,26 @@ function AuthPage() {
               <TabsContent value="signup" />
             </Tabs>
             <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+              {verificationSent && (
+                <Alert className="border-amber-500/50 bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+                  <Mail className="h-4 w-4 text-amber-600 dark:text-amber-300" />
+                  <AlertTitle>Email not confirmed</AlertTitle>
+                  <AlertDescription className="space-y-2">
+                    <p>
+                      Check your inbox for a verification email and click the confirmation link.
+                      If you don't see it, check your spam folder or resend it.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleResend}
+                      disabled={resendLoading}
+                      className="text-xs font-medium text-amber-700 underline hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 disabled:opacity-50"
+                    >
+                      {resendLoading ? "Sending…" : "Resend verification email"}
+                    </button>
+                  </AlertDescription>
+                </Alert>
+              )}
               {mode === "forgot" && (
                 <p className="text-sm text-muted-foreground">
                   Enter your email and we'll send you a link to reset your password.
@@ -266,16 +287,6 @@ function AuthPage() {
                   className="block w-full text-center text-xs text-muted-foreground hover:underline"
                 >
                   Back to sign in
-                </button>
-              )}
-              {mode === "signin" && verificationSent && (
-                <button
-                  type="button"
-                  onClick={handleResend}
-                  disabled={resendLoading}
-                  className="block w-full text-center text-xs text-primary hover:underline disabled:opacity-50"
-                >
-                  {resendLoading ? "Sending…" : "Resend verification email"}
                 </button>
               )}
             </form>
