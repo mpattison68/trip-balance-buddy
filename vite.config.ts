@@ -12,4 +12,9 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Outside the Lovable sandbox (e.g. building inside Docker on the VPS),
+  // emit a standalone Node server so we can run the app with `node .output/server/index.mjs`.
+  // Inside the Lovable sandbox the wrapper forces the cloudflare preset, so this only
+  // takes effect for self-hosted builds.
+  nitro: { preset: "node-server" },
 });
