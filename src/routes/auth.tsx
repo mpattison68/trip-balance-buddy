@@ -45,6 +45,27 @@ function AuthPage() {
     }
   }
 
+  async function handleResend() {
+    if (!email) {
+      toast.error("Enter your email address first.");
+      return;
+    }
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/auth` },
+      });
+      if (error) throw error;
+      toast.success("Verification email resent — check your inbox.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to resend email");
+    } finally {
+      setResendLoading(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
