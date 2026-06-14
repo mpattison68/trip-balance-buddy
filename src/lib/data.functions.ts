@@ -95,11 +95,15 @@ export const addMember = createServerFn({ method: "POST" })
 export const updateMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (d: { id: string; name?: string; role?: "owner" | "member"; archived?: boolean }) =>
+    (d: { id: string; name?: string; email?: string | null; role?: "owner" | "member"; archived?: boolean }) =>
       z
         .object({
           id: z.string().uuid(),
           name: z.string().trim().min(1).max(100).optional(),
+          email: z
+            .union([z.string().trim().email().max(255), z.literal("")])
+            .nullable()
+            .optional(),
           role: z.enum(["owner", "member"]).optional(),
           archived: z.boolean().optional(),
         })
@@ -108,6 +112,7 @@ export const updateMember = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const patch = {
       ...(data.name !== undefined ? { name: data.name } : {}),
+      ...(data.email !== undefined ? { email: data.email ? data.email : null } : {}),
       ...(data.role !== undefined ? { role: data.role } : {}),
       ...(data.archived !== undefined
         ? { archived_at: data.archived ? new Date().toISOString() : null }
