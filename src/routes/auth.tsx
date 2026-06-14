@@ -71,9 +71,11 @@ function AuthPage() {
         // If email confirmation is required, Supabase returns a user but no session.
         if (!data.session) {
           toast.success("Account created — check your email to confirm your address before signing in.");
+          setVerificationSent(true);
           setMode("signin");
           return;
         }
+        setVerificationSent(false);
         toast.success("Account created — you're signed in!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
