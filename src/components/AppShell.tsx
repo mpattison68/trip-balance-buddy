@@ -27,7 +27,7 @@ export function AppShell({ children, accountId }: { children: ReactNode; account
           ) : (
             <Link to="/app" className="flex items-center gap-2 font-semibold">
               <Wallet className="h-5 w-5 text-primary" />
-              Trip Balance
+              Dashboard
             </Link>
           )}
           <div className="flex items-center gap-2">
@@ -40,8 +40,12 @@ export function AppShell({ children, accountId }: { children: ReactNode; account
                     <span className="sm:hidden">Trip</span>
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="icon" title="Accounts">
-                  <Link to="/app" aria-label="Accounts">
+                <Button asChild variant="outline" size="icon" title="Account settings">
+                  <Link
+                    to="/app/accounts/$accountId/members"
+                    params={{ accountId }}
+                    aria-label="Account settings"
+                  >
                     <UserCog className="h-4 w-4" />
                   </Link>
                 </Button>

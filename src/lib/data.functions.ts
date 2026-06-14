@@ -35,6 +35,16 @@ export const createAccount = createServerFn({ method: "POST" })
     z.object({ name: z.string().trim().min(1).max(100) }).parse(d),
   )
   .handler(async ({ context, data }) => {
+    const { data: existing, error: exErr } = await context.supabase
+      .from("accounts")
+      .select("id")
+      .eq("created_by", context.userId)
+      .is("archived_at", null)
+      .limit(1);
+    if (exErr) throw new Error(exErr.message);
+    if (existing && existing.length > 0) {
+      throw new Error("You already have an account. Only one account is allowed per user.");
+    }
     const { data: row, error } = await context.supabase
       .from("accounts")
       .insert({ name: data.name, created_by: context.userId })
