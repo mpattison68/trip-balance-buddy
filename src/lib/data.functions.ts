@@ -228,18 +228,11 @@ export const setTripParticipants = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ context, data }) => {
-    const del = await context.supabase
-      .from("trip_participants")
-      .delete()
-      .eq("trip_id", data.tripId)
-      .not("member_id", "in", `(${data.memberIds.join(",")})`);
+    const del = await context.supabase.from("trip_participants").delete().eq("trip_id", data.tripId);
     if (del.error) throw new Error(del.error.message);
-    const ins = await context.supabase
-      .from("trip_participants")
-      .upsert(
-        data.memberIds.map((id) => ({ trip_id: data.tripId, member_id: id, account_id: data.accountId })),
-        { onConflict: "trip_id,member_id", ignoreDuplicates: true },
-      );
+    const ins = await context.supabase.from("trip_participants").insert(
+      data.memberIds.map((id) => ({ trip_id: data.tripId, member_id: id, account_id: data.accountId })),
+    );
     if (ins.error) throw new Error(ins.error.message);
     return { ok: true };
   });
