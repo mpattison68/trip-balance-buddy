@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { EmailOtpType } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { Wallet } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   head: () => ({ meta: [{ title: "Sign in — Trip Balance" }] }),
   component: AuthPage,
 });
@@ -24,11 +26,59 @@ function AuthPage() {
   const [oauthLoading, setOauthLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const handledEmailLink = useRef(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/app" });
-    });
+    if (handledEmailLink.current) return;
+    handledEmailLink.current = true;
+
+    async function handleAuthEntry() {
+      const url = new URL(window.location.href);
+      const search = url.searchParams;
+      const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
+      const getParam = (key: string) => search.get(key) ?? hash.get(key);
+      const code = search.get("code");
+      const tokenHash = getParam("token_hash");
+      const otpType = getParam("type") as EmailOtpType | null;
+      const errorDescription = getParam("error_description");
+
+      if (errorDescription) {
+        toast.error(errorDescription.replace(/\+/g, " "));
+        setVerificationSent(true);
+        window.history.replaceState({}, document.title, "/auth");
+        return;
+      }
+
+      try {
+        if (tokenHash && otpType) {
+          const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: otpType });
+          if (error) throw error;
+          toast.success("Email confirmed — you're signed in.");
+          window.history.replaceState({}, document.title, "/auth");
+          navigate({ to: "/app", replace: true });
+          return;
+        }
+
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          toast.success("Email confirmed — you're signed in.");
+          window.history.replaceState({}, document.title, "/auth");
+          navigate({ to: "/app", replace: true });
+          return;
+        }
+
+        const { data } = await supabase.auth.getSession();
+        if (data.session) navigate({ to: "/app", replace: true });
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Confirmation link failed. Please resend it.");
+        setVerificationSent(true);
+        setMode("signin");
+        window.history.replaceState({}, document.title, "/auth");
+      }
+    }
+
+    void handleAuthEntry();
   }, [navigate]);
 
   async function handleGoogle() {
@@ -105,6 +155,10 @@ function AuthPage() {
       }
       navigate({ to: "/app" });
     } catch (err) {
+      if (err instanceof Error && err.message.toLowerCase().includes("email not confirmed")) {
+        setVerificationSent(true);
+        setMode("signin");
+      }
       toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally {
       setLoading(false);
