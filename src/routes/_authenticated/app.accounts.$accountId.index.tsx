@@ -79,6 +79,54 @@ function AccountDashboard() {
     return { trip: t, totalSpend, spendBy, plan };
   });
 
+  // Build an interleaved feed of trips + settlements ordered by date.
+  // Settlements within a trip's date range appear after that trip.
+  type FeedItem =
+    | { kind: "trip"; sortDate: string; order: number; subOrder: number; data: (typeof tripSummaries)[number] }
+    | { kind: "settlement"; sortDate: string; order: number; subOrder: number; data: (typeof settlements)[number] };
+
+  const feed: FeedItem[] = [];
+  tripSummaries.forEach((ts, i) => {
+    feed.push({
+      kind: "trip",
+      sortDate: sortKey(ts.trip) || "0000-00-00",
+      order: 0,
+      subOrder: i,
+      data: ts,
+    });
+  });
+  settlements.forEach((s, i) => {
+    const containing = trips.find(
+      (t) =>
+        t.start_date &&
+        t.end_date &&
+        s.date >= t.start_date &&
+        s.date <= t.end_date,
+    );
+    if (containing) {
+      feed.push({
+        kind: "settlement",
+        sortDate: sortKey(containing) || s.date,
+        order: 1,
+        subOrder: new Date(s.date).getTime() + i,
+        data: s,
+      });
+    } else {
+      feed.push({
+        kind: "settlement",
+        sortDate: s.date,
+        order: 0,
+        subOrder: i,
+        data: s,
+      });
+    }
+  });
+  feed.sort((a, b) => {
+    if (a.sortDate !== b.sortDate) return a.sortDate.localeCompare(b.sortDate);
+    if (a.order !== b.order) return a.order - b.order;
+    return a.subOrder - b.subOrder;
+  });
+
   return (
     <AppShell accountId={accountId}>
       <PageHeader
@@ -116,19 +164,41 @@ function AccountDashboard() {
       </section>
 
       <section className="mt-2">
-        <h2 className="mb-3 text-lg font-semibold">Trips</h2>
-        {tripSummaries.length === 0 ? (
+        <h2 className="mb-3 text-lg font-semibold">Trips and Settlements</h2>
+        {feed.length === 0 ? (
           <div className={cardCls("text-sm text-muted-foreground")}>
             No trips yet. Use “New trip” at the top to add one.
           </div>
         ) : (
           <ul className="space-y-3">
-            {tripSummaries.map(({ trip: t, totalSpend, spendBy, plan }) => {
+            {feed.map((item, idx) => {
+              if (item.kind === "settlement") {
+                const s = item.data;
+                const trip = trips.find((t) => t.id === s.trip_id);
+                return (
+                  <li key={`s-${s.id}`}>
+                    <div className={cardCls("flex flex-wrap items-center justify-between gap-3 border-emerald-500/30 bg-emerald-500/5")}>
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Settlement</div>
+                        <div className="font-medium">
+                          {memberName(s.from_member_id)} → {memberName(s.to_member_id)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {formatDate(s.date)} · {trip?.name ?? "Account-wide"}
+                        </div>
+                        {s.notes && <div className="mt-1 text-sm text-muted-foreground">{s.notes}</div>}
+                      </div>
+                      <div className="font-semibold tabular-nums">{formatZAR(Number(s.amount))}</div>
+                    </div>
+                  </li>
+                );
+              }
+              const { trip: t, totalSpend, spendBy, plan } = item.data;
               const spendEntries = Array.from(spendBy.entries())
                 .filter(([, v]) => v > 0)
                 .sort((a, b) => b[1] - a[1]);
               return (
-                <li key={t.id}>
+                <li key={`t-${t.id}-${idx}`}>
                   <Link
                     to="/app/accounts/$accountId/trips/$tripId"
                     params={{ accountId, tripId: t.id }}
@@ -194,36 +264,6 @@ function AccountDashboard() {
         )}
       </section>
 
-      <section className="mt-6">
-        <h2 className="mb-3 text-lg font-semibold">Settlements</h2>
-        {settlements.length === 0 ? (
-          <div className={cardCls("text-sm text-muted-foreground")}>
-            No settlements recorded yet.
-          </div>
-        ) : (
-          <ul className="grid gap-2">
-            {[...settlements]
-              .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
-              .map((s) => {
-                const trip = trips.find((t) => t.id === s.trip_id);
-                return (
-                  <li key={s.id} className={cardCls("flex flex-wrap items-center justify-between gap-3")}>
-                    <div>
-                      <div className="font-medium">
-                        {memberName(s.from_member_id)} → {memberName(s.to_member_id)}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatDate(s.date)} · {trip?.name ?? "Account-wide"}
-                      </div>
-                      {s.notes && <div className="mt-1 text-sm text-muted-foreground">{s.notes}</div>}
-                    </div>
-                    <div className="font-semibold tabular-nums">{formatZAR(Number(s.amount))}</div>
-                  </li>
-                );
-              })}
-          </ul>
-        )}
-      </section>
     </AppShell>
   );
 }
