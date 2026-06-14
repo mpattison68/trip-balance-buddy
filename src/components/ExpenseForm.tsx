@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cardCls } from "./AppShell";
 import { formatZAR } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export type ExpenseFormValue = {
   date: string;
@@ -70,6 +71,15 @@ export function ExpenseForm({
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (totalAmount <= 0) {
+      toast.error("Enter at least one contribution under 'Who paid?'");
+      return;
+    }
+    const includedIds = Object.entries(shareIncluded).filter(([, on]) => on).map(([id]) => id);
+    if (includedIds.length === 0) {
+      toast.error("Select at least one person to share this expense");
+      return;
+    }
     onSubmit({
       date,
       description,
