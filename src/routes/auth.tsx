@@ -182,6 +182,16 @@ function AuthPage() {
                   Back to sign in
                 </button>
               )}
+              {mode === "signin" && verificationSent && (
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendLoading}
+                  className="block w-full text-center text-xs text-primary hover:underline disabled:opacity-50"
+                >
+                  {resendLoading ? "Sending…" : "Resend verification email"}
+                </button>
+              )}
             </form>
             {mode !== "forgot" && (
               <>
