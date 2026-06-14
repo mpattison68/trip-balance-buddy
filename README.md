@@ -106,3 +106,16 @@ In Authentication → Providers → Google:
 **Exact Supabase callback URL:** `https://oktwzbqjplwljaaetovq.supabase.co/auth/v1/callback`
 
 Google returns to this Supabase callback, Supabase then redirects to `https://trip-balance.clickcraft.tech/auth`, and the Supabase JS client picks up the session from the URL automatically.
+
+### Email confirmation links go to the wrong domain?
+
+If the "Confirm your email" link in the signup email opens the **Lovable preview URL** (e.g. `id-preview--…lovable.app`) instead of `https://trip-balance.clickcraft.tech`, the Supabase **Site URL** is still pointing at the Lovable preview.
+
+Fix:
+
+1. Open the Lovable Cloud UI → **Cloud → Users → Auth Settings (gear icon) → URL Configuration**.
+2. Set **Site URL** to `https://trip-balance.clickcraft.tech`.
+3. Make sure **Additional Redirect URLs** includes `https://trip-balance.clickcraft.tech/**` (and `/auth`, `/reset-password`).
+4. Save. New confirmation emails will now link to your VPS domain. Previously-sent verification emails will still point at the old URL — re-send by signing up again or by triggering "Resend confirmation" from the Supabase Users panel.
+
+> Note: Lovable Cloud projects have **email confirmation enabled by default**. The signup UI now reflects this and asks the new user to check their inbox before signing in.
