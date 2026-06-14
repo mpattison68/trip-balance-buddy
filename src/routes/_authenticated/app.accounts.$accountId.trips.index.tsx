@@ -94,7 +94,7 @@ function TripsList() {
             <SelectItem value="all">All status</SelectItem>
             <SelectItem value="planning">Planning</SelectItem>
             <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
+            <SelectItem value="closed">Past</SelectItem>
           </SelectContent>
         </Select>
         <Select value={year} onValueChange={setYear}>
