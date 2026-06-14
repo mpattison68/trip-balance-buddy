@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { accountDataQO, settlementsQO, tripsQO } from "@/lib/queries";
 import { AppShell, PageHeader, cardCls } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { createSettlement } from "@/lib/data.functions";
 import { formatDate, formatZAR } from "@/lib/format";
+import { computeNetBalances, minimizeSettlements, type ExpenseRow } from "@/lib/calc";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,7 +36,7 @@ function SettlementsPage() {
 
   return (
     <AppShell accountId={accountId}>
-      <PageHeader title="Settlements" action={<RecordDialog accountId={accountId} members={account.members} trips={trips} />} />
+      <PageHeader title="Settlements" action={<RecordDialog accountId={accountId} account={account} trips={trips} />} />
       {settlements.length === 0 ? (
         <div className={cardCls("text-center text-muted-foreground")}>No settlements recorded.</div>
       ) : (
