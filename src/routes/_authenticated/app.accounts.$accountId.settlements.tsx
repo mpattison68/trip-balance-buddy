@@ -57,8 +57,6 @@ function SettlementsPage() {
   );
 }
 
-type AccountData = ReturnType<typeof useSuspenseQuery<typeof accountDataQO extends (id: string) => infer Q ? Q : never>>["data"];
-
 function RecordDialog({ accountId, account, trips }: {
   accountId: string;
   account: { members: { id: string; name: string; archived_at: string | null }[]; expenses: any[]; contributions: any[]; shares: any[]; settlements: any[] };
