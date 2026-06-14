@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { addMember, updateMember } from "@/lib/data.functions";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/members")({
@@ -48,6 +48,10 @@ function MembersPage() {
               <div className="text-xs text-muted-foreground">{m.email || "No email"} · {m.user_id ? "Linked" : "Unlinked"}</div>
             </div>
             <div className="flex items-center gap-2">
+              <EditMemberDialog
+                member={m}
+                onSubmit={(d) => updM.mutate({ id: m.id, ...d })}
+              />
               <Select value={m.role} onValueChange={(v) => updM.mutate({ id: m.id, role: v as "owner" | "member" })}>
                 <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -63,6 +67,51 @@ function MembersPage() {
         ))}
       </ul>
     </AppShell>
+  );
+}
+
+function EditMemberDialog({
+  member,
+  onSubmit,
+}: {
+  member: { name: string; email: string | null };
+  onSubmit: (d: { name: string; email: string | null }) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(member.name);
+  const [email, setEmail] = useState(member.email ?? "");
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) {
+          setName(member.name);
+          setEmail(member.email ?? "");
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label="Edit member">
+          <Pencil className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Edit member</DialogTitle></DialogHeader>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit({ name: name.trim(), email: email.trim() ? email.trim() : null });
+            setOpen(false);
+          }}
+          className="space-y-4"
+        >
+          <div className="space-y-2"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} required maxLength={100} /></div>
+          <div className="space-y-2"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="name@example.com" /></div>
+          <DialogFooter><Button type="submit">Save</Button></DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
