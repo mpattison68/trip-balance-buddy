@@ -1,5 +1,5 @@
 import { Link, useParams, useRouter } from "@tanstack/react-router";
-import { Wallet, LayoutDashboard, Plane, Users, Tag, ArrowLeftRight, History, FileText, LogOut } from "lucide-react";
+import { Wallet, LayoutDashboard, Plane, Users, Tag, ArrowLeftRight, History, FileText, LogOut, Plus, UserCog } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,13 +15,43 @@ export function AppShell({ children, accountId }: { children: ReactNode; account
     <div className="min-h-screen bg-muted/30">
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-          <Link to="/app" className="flex items-center gap-2 font-semibold">
-            <Wallet className="h-5 w-5 text-primary" />
-            Trip Balance
-          </Link>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="mr-2 h-4 w-4" /> Sign out
-          </Button>
+          {accountId ? (
+            <Link
+              to="/app/accounts/$accountId"
+              params={{ accountId }}
+              className="flex items-center gap-2 font-semibold"
+            >
+              <Wallet className="h-5 w-5 text-primary" />
+              Dashboard
+            </Link>
+          ) : (
+            <Link to="/app" className="flex items-center gap-2 font-semibold">
+              <Wallet className="h-5 w-5 text-primary" />
+              Trip Balance
+            </Link>
+          )}
+          <div className="flex items-center gap-2">
+            {accountId && (
+              <>
+                <Button asChild size="sm">
+                  <Link to="/app/accounts/$accountId/trips/new" params={{ accountId }}>
+                    <Plus className="mr-1 h-4 w-4" />
+                    <span className="hidden sm:inline">New trip</span>
+                    <span className="sm:hidden">Trip</span>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="icon" title="Accounts">
+                  <Link to="/app" aria-label="Accounts">
+                    <UserCog className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </>
+            )}
+            <Button variant="ghost" size="sm" onClick={signOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
+          </div>
         </div>
       </header>
       <div className="mx-auto flex max-w-6xl gap-6 px-4 py-6 pb-24 sm:pb-6">
