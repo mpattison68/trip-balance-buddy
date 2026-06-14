@@ -122,7 +122,6 @@ function TripPage() {
             <h3 className="font-semibold">Trip Summary</h3>
             <div className="text-right text-xs uppercase tracking-wide text-muted-foreground">
               <div>Total spend: <span className="text-sm font-semibold tabular-nums text-foreground normal-case tracking-normal">{formatZAR(totalCost)}</span></div>
-              <div>Fair share total: <span className="text-sm font-semibold tabular-nums text-foreground normal-case tracking-normal">{formatZAR(Array.from(sharesByMember.values()).reduce((s, v) => s + v, 0))}</span></div>
             </div>
           </div>
           <table className="w-full text-sm">
