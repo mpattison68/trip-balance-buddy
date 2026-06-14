@@ -3,11 +3,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { accountDataQO } from "@/lib/queries";
 import { AppShell, PageHeader, cardCls } from "@/components/AppShell";
-import { BalanceCard, SettlementSummary } from "@/components/BalanceCard";
+import { SettlementSummary } from "@/components/BalanceCard";
 import { Button } from "@/components/ui/button";
-import { computeNetBalances, minimizeSettlements, type ExpenseRow, type SettlementRow } from "@/lib/calc";
+import { computeNetBalances, minimizeSettlements, type ExpenseRow } from "@/lib/calc";
 import { formatDate, formatZAR } from "@/lib/format";
-import { Plus, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/")({
   loader: ({ context, params }) =>
@@ -22,9 +21,6 @@ function AccountDashboard() {
   const memberById = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
   const memberName = (id: string) => memberById.get(id)?.name ?? "Unknown";
   const activeMemberIds = members.filter((m) => !m.archived_at).map((m) => m.id);
-
-  const now = new Date();
-  const year = now.getFullYear();
 
   const buildExpenseRows = (filterIds?: Set<string>): ExpenseRow[] =>
     expenses
@@ -52,47 +48,47 @@ function AccountDashboard() {
     activeMemberIds,
   );
   const lifetimePlan = minimizeSettlements(lifetimeNet);
-  const lifetimeOpen = lifetimePlan.reduce((s, p) => s + p.amount, 0);
 
-  // YTD
-  const ytdTripIds = new Set(
-    trips.filter((t) => t.end_date && new Date(t.end_date).getFullYear() === year).map((t) => t.id),
-  );
-  const ytdExpenseIds = new Set(expenses.filter((e) => ytdTripIds.has(e.trip_id)).map((e) => e.id));
-  const ytdSpend = expenses
-    .filter((e) => ytdExpenseIds.has(e.id))
-    .reduce((s, e) => s + Number(e.total_amount), 0);
-  const ytdSettlements: SettlementRow[] = settlements
-    .filter((s) => s.trip_id && ytdTripIds.has(s.trip_id))
-    .map((s) => ({
-      from_member_id: s.from_member_id,
-      to_member_id: s.to_member_id,
-      amount: Number(s.amount),
-    }));
-  const ytdNet = computeNetBalances(buildExpenseRows(ytdExpenseIds), ytdSettlements, activeMemberIds);
-  const ytdOpen = minimizeSettlements(ytdNet).reduce((s, p) => s + p.amount, 0);
+  // Per-trip summaries, oldest -> newest by start_date (fallback created_at)
+  const sortKey = (t: (typeof trips)[number]) => t.start_date ?? t.end_date ?? "";
+  const sortedTrips = [...trips].sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
 
-  const openTrips = trips.filter((t) => t.status !== "closed");
-  const recentClosed = trips
-    .filter((t) => t.status === "closed")
-    .sort((a, b) => (b.end_date ?? "").localeCompare(a.end_date ?? ""))
-    .slice(0, 5);
+  const tripSummaries = sortedTrips.map((t) => {
+    const tripExpenseRows = buildExpenseRows(
+      new Set(expenses.filter((e) => e.trip_id === t.id).map((e) => e.id)),
+    );
+    const totalSpend = tripExpenseRows.reduce((s, e) => s + e.total_amount, 0);
+
+    // Per-member spend (contributions)
+    const spendBy = new Map<string, number>();
+    for (const e of tripExpenseRows) {
+      for (const c of e.contributions) {
+        spendBy.set(c.member_id, (spendBy.get(c.member_id) ?? 0) + c.amount);
+      }
+    }
+
+    const tripSettlements = settlements
+      .filter((s) => s.trip_id === t.id)
+      .map((s) => ({
+        from_member_id: s.from_member_id,
+        to_member_id: s.to_member_id,
+        amount: Number(s.amount),
+      }));
+    const net = computeNetBalances(tripExpenseRows, tripSettlements, activeMemberIds);
+    const plan = minimizeSettlements(net);
+    return { trip: t, totalSpend, spendBy, plan };
+  });
 
   return (
     <AppShell accountId={accountId}>
       <PageHeader
         title={account.name}
         action={
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link to="/app/accounts/$accountId/settlements" params={{ accountId }}>Record settlement</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/app/accounts/$accountId/trips/new" params={{ accountId }}>
-                <Plus className="mr-1 h-4 w-4" /> New trip
-              </Link>
-            </Button>
-          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/app/accounts/$accountId/settlements" params={{ accountId }}>
+              Record settlement
+            </Link>
+          </Button>
         }
       />
 
@@ -112,82 +108,90 @@ function AccountDashboard() {
 
       <section className="mb-6">
         <div className={cardCls("border-primary/30 bg-primary/5")}>
-          <div className="text-sm uppercase tracking-wide text-primary">Current position</div>
+          <div className="text-sm uppercase tracking-wide text-primary">Total owed</div>
           <div className="mt-2 space-y-1">
             <SettlementSummary plan={lifetimePlan} memberName={memberName} />
           </div>
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <BalanceCard label="Open balance" value={lifetimeOpen} tone={lifetimeOpen > 0 ? "negative" : "default"} sub="Outstanding across all trips" />
-        <BalanceCard label={`YTD spend (${year})`} value={ytdSpend} sub={`${ytdTripIds.size} trip${ytdTripIds.size === 1 ? "" : "s"} this year`} />
-        <BalanceCard label="YTD balance" value={ytdOpen} sub="Open for trips ending this year" />
-        <BalanceCard label="Lifetime balance" value={lifetimeOpen} sub="Total open since account start" />
-      </section>
-
-      <section className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Open trips</h2>
-            <Link to="/app/accounts/$accountId/trips" params={{ accountId }} className="text-sm text-primary hover:underline">
-              View all <ArrowRight className="ml-1 inline h-3 w-3" />
-            </Link>
+      <section className="mt-2">
+        <h2 className="mb-3 text-lg font-semibold">Trips</h2>
+        {tripSummaries.length === 0 ? (
+          <div className={cardCls("text-sm text-muted-foreground")}>
+            No trips yet. Use “New trip” at the top to add one.
           </div>
-          {openTrips.length === 0 ? (
-            <div className={cardCls("text-sm text-muted-foreground")}>No open trips.</div>
-          ) : (
-            <ul className="space-y-2">
-              {openTrips.slice(0, 6).map((t) => (
+        ) : (
+          <ul className="space-y-3">
+            {tripSummaries.map(({ trip: t, totalSpend, spendBy, plan }) => {
+              const spendEntries = Array.from(spendBy.entries())
+                .filter(([, v]) => v > 0)
+                .sort((a, b) => b[1] - a[1]);
+              return (
                 <li key={t.id}>
                   <Link
                     to="/app/accounts/$accountId/trips/$tripId"
                     params={{ accountId, tripId: t.id }}
-                    className={cardCls("flex items-center justify-between transition hover:border-primary/40")}
+                    className={cardCls("block transition hover:border-primary/40")}
                   >
-                    <div>
-                      <div className="font-medium">{t.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {t.start_date ? formatDate(t.start_date) : "—"} → {t.end_date ? formatDate(t.end_date) : "—"}
-                      </div>
-                    </div>
-                    <span className="rounded-full bg-secondary px-2 py-1 text-xs capitalize">{t.status}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div>
-          <h2 className="mb-3 text-lg font-semibold">Recently closed</h2>
-          {recentClosed.length === 0 ? (
-            <div className={cardCls("text-sm text-muted-foreground")}>No closed trips yet.</div>
-          ) : (
-            <ul className="space-y-2">
-              {recentClosed.map((t) => {
-                const totalSpent = expenses
-                  .filter((e) => e.trip_id === t.id)
-                  .reduce((s, e) => s + Number(e.total_amount), 0);
-                return (
-                  <li key={t.id}>
-                    <Link
-                      to="/app/accounts/$accountId/trips/$tripId"
-                      params={{ accountId, tripId: t.id }}
-                      className={cardCls("flex items-center justify-between transition hover:border-primary/40")}
-                    >
+                    <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <div className="font-medium">{t.name}</div>
-                        <div className="text-xs text-muted-foreground">Ended {formatDate(t.end_date)}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {t.start_date ? formatDate(t.start_date) : "—"} →{" "}
+                          {t.end_date ? formatDate(t.end_date) : "—"}
+                        </div>
                       </div>
-                      <span className="text-sm tabular-nums">{formatZAR(totalSpent)}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+                      <div className="text-right">
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Total spend
+                        </div>
+                        <div className="text-base font-semibold tabular-nums">
+                          {formatZAR(totalSpend)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {spendEntries.length > 0 && (
+                      <div className="mt-3">
+                        <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Spent by member
+                        </div>
+                        <ul className="mt-1 grid gap-1 sm:grid-cols-2">
+                          {spendEntries.map(([id, v]) => (
+                            <li key={id} className="flex justify-between text-sm">
+                              <span>{memberName(id)}</span>
+                              <span className="tabular-nums">{formatZAR(v)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="mt-3">
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Who owes whom
+                      </div>
+                      {plan.length === 0 ? (
+                        <div className="mt-1 text-sm text-emerald-600">All settled up</div>
+                      ) : (
+                        <ul className="mt-1 space-y-0.5 text-sm">
+                          {plan.map((p, i) => (
+                            <li key={i}>
+                              <span className="font-medium">{memberName(p.from)}</span> owes{" "}
+                              <span className="font-medium">{memberName(p.to)}</span>{" "}
+                              <span className="tabular-nums">{formatZAR(p.amount)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
     </AppShell>
   );
