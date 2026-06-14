@@ -281,7 +281,7 @@ export const getTripDetail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { tripId: string }) => z.object({ tripId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    const [tripRes, expensesRes, contribsRes, sharesRes, settlementsRes] = await Promise.all([
+    const [tripRes, expensesRes, contribsRes, sharesRes, settlementsRes, participantsRes] = await Promise.all([
       context.supabase.from("trips").select("*").eq("id", data.tripId).single(),
       context.supabase
         .from("expenses")
@@ -321,18 +321,24 @@ export const getTripDetail = createServerFn({ method: "GET" })
         .eq("trip_id", data.tripId)
         .is("archived_at", null)
         .order("date", { ascending: false }),
+      context.supabase
+        .from("trip_participants")
+        .select("member_id")
+        .eq("trip_id", data.tripId),
     ]);
     if (tripRes.error) throw new Error(tripRes.error.message);
     if (expensesRes.error) throw new Error(expensesRes.error.message);
     if (contribsRes.error) throw new Error(contribsRes.error.message);
     if (sharesRes.error) throw new Error(sharesRes.error.message);
     if (settlementsRes.error) throw new Error(settlementsRes.error.message);
+    if (participantsRes.error) throw new Error(participantsRes.error.message);
     return {
       trip: tripRes.data,
       expenses: expensesRes.data ?? [],
       contributions: contribsRes.data ?? [],
       shares: sharesRes.data ?? [],
       settlements: settlementsRes.data ?? [],
+      participants: (participantsRes.data ?? []).map((p) => p.member_id),
     };
   });
 
