@@ -40,6 +40,8 @@ function AuthPage() {
       const code = search.get("code");
       const tokenHash = getParam("token_hash");
       const otpType = getParam("type") as EmailOtpType | null;
+      const accessToken = hash.get("access_token");
+      const refreshToken = hash.get("refresh_token");
       const errorDescription = getParam("error_description");
 
       if (errorDescription) {
@@ -61,6 +63,18 @@ function AuthPage() {
 
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          toast.success("Email confirmed — you're signed in.");
+          window.history.replaceState({}, document.title, "/auth");
+          navigate({ to: "/app", replace: true });
+          return;
+        }
+
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
           if (error) throw error;
           toast.success("Email confirmed — you're signed in.");
           window.history.replaceState({}, document.title, "/auth");
