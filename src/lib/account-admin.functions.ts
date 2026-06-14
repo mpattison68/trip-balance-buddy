@@ -12,12 +12,37 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
     const userId = context.userId;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // 1. Remove accounts owned by this user — cascades to members/trips/expenses/settlements.
-    const { error: accErr } = await supabaseAdmin
+    // 1. Find all accounts owned by this user.
+    const { data: ownedAccounts, error: listErr } = await supabaseAdmin
       .from("accounts")
-      .delete()
+      .select("id")
       .eq("created_by", userId);
-    if (accErr) throw new Error(`Failed to remove owned accounts: ${accErr.message}`);
+    if (listErr) throw new Error(`Failed to list owned accounts: ${listErr.message}`);
+    const accountIds = (ownedAccounts ?? []).map((a) => a.id);
+
+    if (accountIds.length > 0) {
+      // Order matters: account_members has RESTRICT FKs from expense_contributions/
+      // expense_shares/settlements (member_id). Deleting accounts would cascade to
+      // account_members and fail. Clear settlements + expenses first (both cascade
+      // to their member-referencing children), then delete accounts.
+      const { error: setErr } = await supabaseAdmin
+        .from("settlements")
+        .delete()
+        .in("account_id", accountIds);
+      if (setErr) throw new Error(`Failed to remove settlements: ${setErr.message}`);
+
+      const { error: expErr } = await supabaseAdmin
+        .from("expenses")
+        .delete()
+        .in("account_id", accountIds);
+      if (expErr) throw new Error(`Failed to remove expenses: ${expErr.message}`);
+
+      const { error: accErr } = await supabaseAdmin
+        .from("accounts")
+        .delete()
+        .in("id", accountIds);
+      if (accErr) throw new Error(`Failed to remove owned accounts: ${accErr.message}`);
+    }
 
     // 2. Delete the auth identity. Remaining FKs (account_members.user_id,
     //    trips/expenses/settlements.created_by) are ON DELETE SET NULL, so history is preserved.
