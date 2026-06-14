@@ -198,7 +198,7 @@ export type Database = {
           archived_at: string | null
           category_id: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           date: string
           description: string
           id: string
@@ -212,7 +212,7 @@ export type Database = {
           archived_at?: string | null
           category_id?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string | null
           date?: string
           description: string
           id?: string
@@ -226,7 +226,7 @@ export type Database = {
           archived_at?: string | null
           category_id?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           date?: string
           description?: string
           id?: string
@@ -265,7 +265,7 @@ export type Database = {
           amount: number
           archived_at: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           date: string
           from_member_id: string
           id: string
@@ -278,7 +278,7 @@ export type Database = {
           amount: number
           archived_at?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string | null
           date?: string
           from_member_id: string
           id?: string
@@ -291,7 +291,7 @@ export type Database = {
           amount?: number
           archived_at?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           date?: string
           from_member_id?: string
           id?: string
@@ -381,7 +381,7 @@ export type Database = {
           account_id: string
           archived_at: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           end_date: string | null
           id: string
           name: string
@@ -393,7 +393,7 @@ export type Database = {
           account_id: string
           archived_at?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string | null
           end_date?: string | null
           id?: string
           name: string
@@ -405,7 +405,7 @@ export type Database = {
           account_id?: string
           archived_at?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           end_date?: string | null
           id?: string
           name?: string

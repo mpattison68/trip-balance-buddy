@@ -11,8 +11,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { addMember, updateMember } from "@/lib/data.functions";
-import { Plus, Pencil } from "lucide-react";
+import { removeMemberCompletely } from "@/lib/account-admin.functions";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/members")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(membersQO(params.accountId)),
@@ -25,6 +37,7 @@ function MembersPage() {
   const qc = useQueryClient();
   const add = useServerFn(addMember);
   const upd = useServerFn(updateMember);
+  const rem = useServerFn(removeMemberCompletely);
 
   const addM = useMutation({
     mutationFn: (d: Parameters<typeof addMember>[0]["data"]) => add({ data: d }),
@@ -35,6 +48,15 @@ function MembersPage() {
     mutationFn: (d: Parameters<typeof updateMember>[0]["data"]) => upd({ data: d }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["members", accountId] }); qc.invalidateQueries({ queryKey: ["account", accountId] }); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Failed"),
+  });
+  const remM = useMutation({
+    mutationFn: (memberId: string) => rem({ data: { memberId, accountId } }),
+    onSuccess: () => {
+      toast.success("Member removed");
+      qc.invalidateQueries({ queryKey: ["members", accountId] });
+      qc.invalidateQueries({ queryKey: ["account", accountId] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Failed to remove member"),
   });
 
   return (
@@ -62,6 +84,33 @@ function MembersPage() {
               <Button variant="outline" size="sm" onClick={() => updM.mutate({ id: m.id, archived: !m.archived_at })}>
                 {m.archived_at ? "Restore" : "Archive"}
               </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Remove member permanently" title="Remove permanently">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Remove {m.name} permanently?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This deletes the member from this account. It only works if they have
+                      no expense or settlement history — otherwise archive them instead so
+                      historical balances stay intact. Their sign-in identity (if any) is
+                      not affected.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => { e.preventDefault(); remM.mutate(m.id); }}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Remove
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </li>
         ))}

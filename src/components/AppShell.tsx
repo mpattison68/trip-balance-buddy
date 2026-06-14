@@ -1,5 +1,5 @@
 import { Link, useParams, useRouter } from "@tanstack/react-router";
-import { Wallet, LayoutDashboard, Plane, Users, Tag, ArrowLeftRight, History, FileText, LogOut, Plus, UserCog } from "lucide-react";
+import { Wallet, LayoutDashboard, Plane, Users, Tag, ArrowLeftRight, History, FileText, LogOut, Plus, UserCog, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -54,6 +54,11 @@ export function AppShell({ children, accountId }: { children: ReactNode; account
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Sign out</span>
+            </Button>
+            <Button asChild variant="ghost" size="icon" title="Settings">
+              <Link to="/app/settings" aria-label="Settings">
+                <Settings className="h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>
