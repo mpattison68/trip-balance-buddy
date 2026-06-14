@@ -28,6 +28,24 @@ function AuthPage() {
   const [resendLoading, setResendLoading] = useState(false);
   const handledEmailLink = useRef(false);
 
+  async function clearLocalAuthSession() {
+    await supabase.auth.signOut({ scope: "local" });
+  }
+
+  async function finishConfirmedAuth(message: string) {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw error ?? new Error("Unable to verify your signed-in account.");
+    const confirmedAt = (data.user as { email_confirmed_at?: string | null; confirmed_at?: string | null }).email_confirmed_at
+      ?? (data.user as { email_confirmed_at?: string | null; confirmed_at?: string | null }).confirmed_at;
+    if (!confirmedAt) {
+      await clearLocalAuthSession();
+      throw new Error("Email not confirmed yet. Please use the newest verification email or resend it.");
+    }
+    toast.success(message);
+    window.history.replaceState({}, document.title, "/auth");
+    navigate({ to: "/app", replace: true });
+  }
+
   useEffect(() => {
     if (handledEmailLink.current) return;
     handledEmailLink.current = true;
@@ -45,6 +63,7 @@ function AuthPage() {
       const errorDescription = getParam("error_description");
 
       if (errorDescription) {
+        await clearLocalAuthSession();
         toast.error(errorDescription.replace(/\+/g, " "));
         setVerificationSent(true);
         window.history.replaceState({}, document.title, "/auth");
@@ -55,18 +74,14 @@ function AuthPage() {
         if (tokenHash && otpType) {
           const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: otpType });
           if (error) throw error;
-          toast.success("Email confirmed — you're signed in.");
-          window.history.replaceState({}, document.title, "/auth");
-          navigate({ to: "/app", replace: true });
+          await finishConfirmedAuth("Email confirmed — you're signed in.");
           return;
         }
 
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) throw error;
-          toast.success("Email confirmed — you're signed in.");
-          window.history.replaceState({}, document.title, "/auth");
-          navigate({ to: "/app", replace: true });
+          await finishConfirmedAuth("Email confirmed — you're signed in.");
           return;
         }
 
@@ -76,15 +91,14 @@ function AuthPage() {
             refresh_token: refreshToken,
           });
           if (error) throw error;
-          toast.success("Email confirmed — you're signed in.");
-          window.history.replaceState({}, document.title, "/auth");
-          navigate({ to: "/app", replace: true });
+          await finishConfirmedAuth("Email confirmed — you're signed in.");
           return;
         }
 
-        const { data } = await supabase.auth.getSession();
-        if (data.session) navigate({ to: "/app", replace: true });
+        const { data, error } = await supabase.auth.getUser();
+        if (!error && data.user) navigate({ to: "/app", replace: true });
       } catch (err) {
+        await clearLocalAuthSession();
         toast.error(err instanceof Error ? err.message : "Confirmation link failed. Please resend it.");
         setVerificationSent(true);
         setMode("signin");
@@ -144,6 +158,7 @@ function AuthPage() {
         return;
       }
       if (mode === "signup") {
+        await clearLocalAuthSession();
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -155,19 +170,22 @@ function AuthPage() {
         if (error) throw error;
         // If email confirmation is required, Supabase returns a user but no session.
         if (!data.session) {
+          await clearLocalAuthSession();
           toast.success("Account created — check your email to confirm your address before signing in.");
           setVerificationSent(true);
           setMode("signin");
           return;
         }
         setVerificationSent(false);
-        toast.success("Account created — you're signed in!");
+        await finishConfirmedAuth("Account created — you're signed in!");
+        return;
       } else {
+        await clearLocalAuthSession();
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success("Welcome back!");
+        await finishConfirmedAuth("Welcome back!");
+        return;
       }
-      navigate({ to: "/app" });
     } catch (err) {
       if (err instanceof Error && err.message.toLowerCase().includes("email not confirmed")) {
         setVerificationSent(true);
