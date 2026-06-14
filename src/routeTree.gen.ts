@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/app.settings'
 import { Route as AuthenticatedAppAccountsAccountIdRouteImport } from './routes/_authenticated/app.accounts.$accountId'
 import { Route as AuthenticatedAppAccountsAccountIdIndexRouteImport } from './routes/_authenticated/app.accounts.$accountId.index'
 import { Route as AuthenticatedAppAccountsAccountIdTripsRouteImport } from './routes/_authenticated/app.accounts.$accountId.trips'
@@ -59,6 +60,12 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppAccountsAccountIdRoute =
   AuthenticatedAppAccountsAccountIdRouteImport.update({
     id: '/accounts/$accountId',
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/accounts/$accountId': typeof AuthenticatedAppAccountsAccountIdRouteWithChildren
   '/app/accounts/$accountId/categories': typeof AuthenticatedAppAccountsAccountIdCategoriesRoute
@@ -171,6 +179,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/app/settings': typeof AuthenticatedAppSettingsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/accounts/$accountId/categories': typeof AuthenticatedAppAccountsAccountIdCategoriesRoute
   '/app/accounts/$accountId/history': typeof AuthenticatedAppAccountsAccountIdHistoryRoute
@@ -191,6 +200,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/accounts/$accountId': typeof AuthenticatedAppAccountsAccountIdRouteWithChildren
   '/_authenticated/app/accounts/$accountId/categories': typeof AuthenticatedAppAccountsAccountIdCategoriesRoute
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/app'
+    | '/app/settings'
     | '/app/'
     | '/app/accounts/$accountId'
     | '/app/accounts/$accountId/categories'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/app/settings'
     | '/app'
     | '/app/accounts/$accountId/categories'
     | '/app/accounts/$accountId/history'
@@ -253,6 +265,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/app'
+    | '/_authenticated/app/settings'
     | '/_authenticated/app/'
     | '/_authenticated/app/accounts/$accountId'
     | '/_authenticated/app/accounts/$accountId/categories'
@@ -319,6 +332,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/settings': {
+      id: '/_authenticated/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/accounts/$accountId': {
@@ -498,11 +518,13 @@ const AuthenticatedAppAccountsAccountIdRouteWithChildren =
   )
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppAccountsAccountIdRoute: typeof AuthenticatedAppAccountsAccountIdRouteWithChildren
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppAccountsAccountIdRoute:
     AuthenticatedAppAccountsAccountIdRouteWithChildren,
