@@ -152,7 +152,7 @@ function TripPage() {
           </table>
         </div>
         <div className={cardCls()}>
-          <h3 className="mb-3 font-semibold">Currently owing</h3>
+          <h3 className="mb-3 font-semibold">Owing for Trip</h3>
           <SettlementSummary plan={plan} memberName={memberName} />
         </div>
       </section>
