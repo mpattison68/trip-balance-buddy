@@ -191,3 +191,62 @@ function TripPage() {
     </AppShell>
   );
 }
+
+function ParticipantsDialog({
+  members,
+  current,
+  onSave,
+}: {
+  members: { id: string; name: string; archived_at: string | null }[];
+  current: string[];
+  onSave: (ids: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const active = members.filter((m) => !m.archived_at);
+  const [sel, setSel] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(active.map((m) => [m.id, current.includes(m.id)])),
+  );
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) setSel(Object.fromEntries(active.map((m) => [m.id, current.includes(m.id)])));
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Users className="mr-2 h-4 w-4" /> Participants
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Trip participants</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-2">
+          {active.map((m) => (
+            <Label key={m.id} className="flex items-center gap-3 cursor-pointer font-normal">
+              <Checkbox checked={!!sel[m.id]} onCheckedChange={(v) => setSel({ ...sel, [m.id]: !!v })} />
+              <span>{m.name}</span>
+            </Label>
+          ))}
+        </div>
+        <DialogFooter>
+          <Button
+            onClick={() => {
+              const ids = Object.entries(sel).filter(([, v]) => v).map(([k]) => k);
+              if (ids.length === 0) {
+                toast.error("Select at least one participant");
+                return;
+              }
+              onSave(ids);
+              setOpen(false);
+            }}
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
