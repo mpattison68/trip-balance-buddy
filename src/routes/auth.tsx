@@ -57,15 +57,21 @@ function AuthPage() {
         return;
       }
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}/auth`,
             data: { name: name || email },
           },
         });
         if (error) throw error;
+        // If email confirmation is required, Supabase returns a user but no session.
+        if (!data.session) {
+          toast.success("Account created — check your email to confirm your address before signing in.");
+          setMode("signin");
+          return;
+        }
         toast.success("Account created — you're signed in!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
