@@ -5,12 +5,16 @@ import { useMemo } from "react";
 import { membersQO, tripDetailQO, categoriesQO } from "@/lib/queries";
 import { AppShell, PageHeader, cardCls } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BalanceCard, SettlementSummary } from "@/components/BalanceCard";
 import { computeNetBalances, minimizeSettlements } from "@/lib/calc";
-import { archiveExpense, updateTrip } from "@/lib/data.functions";
+import { archiveExpense, updateTrip, setTripParticipants } from "@/lib/data.functions";
 import { formatDate, formatZAR } from "@/lib/format";
-import { Plus, Pencil, Archive } from "lucide-react";
+import { Plus, Pencil, Archive, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/trips/$tripId/")({
@@ -31,12 +35,15 @@ function TripPage() {
   const qc = useQueryClient();
   const updT = useServerFn(updateTrip);
   const arc = useServerFn(archiveExpense);
+  const setPart = useServerFn(setTripParticipants);
 
-  const { trip, expenses, contributions, shares, settlements } = detail;
+  const { trip, expenses, contributions, shares, settlements, participants } = detail;
   const memberById = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
   const catById = useMemo(() => new Map(cats.map((c) => [c.id, c])), [cats]);
   const memberName = (id: string) => memberById.get(id)?.name ?? "—";
-  const activeIds = members.filter((m) => !m.archived_at).map((m) => m.id);
+  const participantSet = new Set(participants);
+  const activeIds = members.filter((m) => participantSet.has(m.id)).map((m) => m.id);
+  const tripMembers = members.filter((m) => participantSet.has(m.id));
 
   const expRows = expenses.map((e) => ({
     id: e.id,
@@ -75,6 +82,11 @@ function TripPage() {
     mutationFn: (id: string) => arc({ data: { id, archived: true } }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["trip", tripId] }); qc.invalidateQueries({ queryKey: ["account", accountId] }); toast.success("Expense archived"); },
   });
+  const savePart = useMutation({
+    mutationFn: (ids: string[]) => setPart({ data: { tripId, accountId, memberIds: ids } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["trip", tripId] }); qc.invalidateQueries({ queryKey: ["account", accountId] }); toast.success("Participants updated"); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Failed"),
+  });
 
   return (
     <AppShell accountId={accountId}>
@@ -90,7 +102,8 @@ function TripPage() {
                 <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>
             </Select>
-            <Button asChild>
+            <ParticipantsDialog members={members} current={participants} onSave={(ids) => savePart.mutate(ids)} />
+            <Button asChild disabled={tripMembers.length === 0}>
               <Link to="/app/accounts/$accountId/trips/$tripId/expenses/new" params={{ accountId, tripId }}>
                 <Plus className="mr-2 h-4 w-4" /> Add expense
               </Link>
@@ -107,7 +120,7 @@ function TripPage() {
         <BalanceCard label="Total cost" value={totalCost} />
         <BalanceCard label="Outstanding" value={outstanding} tone={outstanding > 0 ? "negative" : "default"} />
         <BalanceCard label="Contributions" value={Array.from(contributionsByMember.values()).reduce((s, v) => s + v, 0)} />
-        <BalanceCard label="Members involved" value={activeIds.length} sub="active in account" />
+        <BalanceCard label="Participants" value={tripMembers.length} sub="sharing costs on this trip" />
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
@@ -127,7 +140,7 @@ function TripPage() {
               </tr>
             </thead>
             <tbody>
-              {members.filter((m) => !m.archived_at).map((m) => {
+              {tripMembers.map((m) => {
                 const paid = contributionsByMember.get(m.id) ?? 0;
                 const share = sharesByMember.get(m.id) ?? 0;
                 const n = net.get(m.id) ?? 0;
