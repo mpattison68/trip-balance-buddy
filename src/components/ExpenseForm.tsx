@@ -145,8 +145,16 @@ export function ExpenseForm({
           {activeMembers.map((m) => (
             <div key={m.id} className="flex items-center gap-3">
               <span className="w-32 shrink-0 text-sm">{m.name}</span>
-              <Input type="number" inputMode="decimal" step="0.01" min="0" value={contributions[m.id] ?? 0}
-                onChange={(e) => setContributions({ ...contributions, [m.id]: Number(e.target.value) })} />
+              <Input
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                min="0"
+                placeholder="0"
+                value={contributions[m.id] ?? ""}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setContributions({ ...contributions, [m.id]: Number(e.target.value) })}
+              />
             </div>
           ))}
         </div>
