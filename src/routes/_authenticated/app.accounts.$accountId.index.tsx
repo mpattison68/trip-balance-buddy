@@ -50,8 +50,7 @@ function AccountDashboard() {
   const lifetimePlan = minimizeSettlements(lifetimeNet);
 
   // Per-trip summaries, oldest -> newest by start_date (fallback created_at)
-  const sortKey = (t: (typeof trips)[number]) =>
-    t.start_date ?? t.end_date ?? t.created_at ?? "";
+  const sortKey = (t: (typeof trips)[number]) => t.start_date ?? t.end_date ?? "";
   const sortedTrips = [...trips].sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
 
   const tripSummaries = sortedTrips.map((t) => {
