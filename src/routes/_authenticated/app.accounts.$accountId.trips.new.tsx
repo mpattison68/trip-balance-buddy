@@ -60,7 +60,7 @@ function NewTripPage() {
             <SelectContent>
               <SelectItem value="planning">Planning</SelectItem>
               <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="closed">Closed</SelectItem>
+              <SelectItem value="closed">Past</SelectItem>
             </SelectContent>
           </Select>
         </div>

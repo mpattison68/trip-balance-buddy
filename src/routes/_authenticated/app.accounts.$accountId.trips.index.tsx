@@ -94,7 +94,7 @@ function TripsList() {
             <SelectItem value="all">All status</SelectItem>
             <SelectItem value="planning">Planning</SelectItem>
             <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
+            <SelectItem value="closed">Past</SelectItem>
           </SelectContent>
         </Select>
         <Select value={year} onValueChange={setYear}>
@@ -119,7 +119,7 @@ function TripsList() {
                     <div className="font-medium">{t.name}</div>
                     <div className="text-xs text-muted-foreground">{t.start_date ? formatDate(t.start_date) : "—"} → {t.end_date ? formatDate(t.end_date) : "—"}</div>
                   </div>
-                  <div className="col-span-4 sm:col-span-2 text-xs uppercase tracking-wide text-muted-foreground">{t.status}</div>
+                  <div className="col-span-4 sm:col-span-2 text-xs uppercase tracking-wide text-muted-foreground">{t.status === "closed" ? "past" : t.status}</div>
                   <div className="col-span-4 sm:col-span-2 text-sm tabular-nums">{formatZAR(f.totalCost)}</div>
                   <div className="col-span-4 sm:col-span-2 text-sm tabular-nums">{formatZAR(f.outstanding)}</div>
                   <div className="col-span-12 sm:col-span-1 text-right text-xs">

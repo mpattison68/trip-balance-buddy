@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BalanceCard, SettlementSummary } from "@/components/BalanceCard";
+import { SettlementSummary } from "@/components/BalanceCard";
 import { computeNetBalances, minimizeSettlements } from "@/lib/calc";
 import { archiveExpense, updateTrip, setTripParticipants } from "@/lib/data.functions";
 import { formatDate, formatZAR } from "@/lib/format";
@@ -99,7 +99,7 @@ function TripPage() {
               <SelectContent>
                 <SelectItem value="planning">Planning</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="closed">Past</SelectItem>
               </SelectContent>
             </Select>
             <ParticipantsDialog members={members} current={participants} onSave={(ids) => savePart.mutate(ids)} />
@@ -116,20 +116,15 @@ function TripPage() {
         {trip.start_date ? formatDate(trip.start_date) : "—"} → {trip.end_date ? formatDate(trip.end_date) : "—"} · <span className="font-medium text-foreground">{financial}</span>
       </div>
 
-      <section className="my-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <BalanceCard label="Total cost" value={totalCost} />
-        <BalanceCard label="Outstanding" value={outstanding} tone={outstanding > 0 ? "negative" : "default"} />
-        <BalanceCard label="Contributions" value={Array.from(contributionsByMember.values()).reduce((s, v) => s + v, 0)} />
-        <BalanceCard label="Participants" value={tripMembers.length} sub="sharing costs on this trip" />
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-2">
+      <section className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className={cardCls()}>
-          <h3 className="mb-3 font-semibold">Settlement plan</h3>
-          <SettlementSummary plan={plan} memberName={memberName} />
-        </div>
-        <div className={cardCls()}>
-          <h3 className="mb-3 font-semibold">By participant</h3>
+          <div className="mb-3 flex items-baseline justify-between gap-3">
+            <h3 className="font-semibold">Trip Summary</h3>
+            <div className="text-right text-xs uppercase tracking-wide text-muted-foreground">
+              <div>Total spend: <span className="text-sm font-semibold tabular-nums text-foreground normal-case tracking-normal">{formatZAR(totalCost)}</span></div>
+              <div>Fair share total: <span className="text-sm font-semibold tabular-nums text-foreground normal-case tracking-normal">{formatZAR(Array.from(sharesByMember.values()).reduce((s, v) => s + v, 0))}</span></div>
+            </div>
+          </div>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase text-muted-foreground">
@@ -156,6 +151,10 @@ function TripPage() {
             </tbody>
           </table>
         </div>
+        <div className={cardCls()}>
+          <h3 className="mb-3 font-semibold">Currently owing</h3>
+          <SettlementSummary plan={plan} memberName={memberName} />
+        </div>
       </section>
 
       <section className="mt-8">
@@ -164,27 +163,42 @@ function TripPage() {
           <div className={cardCls("text-sm text-muted-foreground")}>No expenses yet. Add the first one to get started.</div>
         ) : (
           <ul className="grid gap-2">
-            {expenses.map((e) => (
-              <li key={e.id} className={cardCls("flex flex-wrap items-center justify-between gap-3")}>
-                <div className="min-w-0">
-                  <div className="font-medium">{e.description}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatDate(e.date)} · {catById.get(e.category_id ?? "")?.name ?? "Uncategorised"} · {e.split_method === "equal" ? "Equal split" : "Percentage split"}
+            {expenses.map((e) => {
+              const expContribs = contributions.filter((c) => c.expense_id === e.id);
+              return (
+                <li key={e.id} className={cardCls("space-y-2")}>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium">{e.description}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatDate(e.date)} · {catById.get(e.category_id ?? "")?.name ?? "Uncategorised"} · {e.split_method === "equal" ? "Equal split" : "Percentage split"}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right font-semibold tabular-nums">{formatZAR(Number(e.total_amount))}</div>
+                      <Button asChild variant="ghost" size="icon">
+                        <Link to="/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit" params={{ accountId, tripId, expenseId: e.id }}>
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => { if (confirm("Archive this expense?")) archiveExp.mutate(e.id); }}>
+                        <Archive className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right font-semibold tabular-nums">{formatZAR(Number(e.total_amount))}</div>
-                  <Button asChild variant="ghost" size="icon">
-                    <Link to="/app/accounts/$accountId/trips/$tripId/expenses/$expenseId/edit" params={{ accountId, tripId, expenseId: e.id }}>
-                      <Pencil className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => { if (confirm("Archive this expense?")) archiveExp.mutate(e.id); }}>
-                    <Archive className="h-4 w-4" />
-                  </Button>
-                </div>
-              </li>
-            ))}
+                  {expContribs.length > 0 && (
+                    <ul className="grid gap-0.5 border-t pt-2 text-xs text-muted-foreground sm:grid-cols-2">
+                      {expContribs.map((c) => (
+                        <li key={c.id} className="flex justify-between gap-3">
+                          <span>{memberName(c.member_id)}</span>
+                          <span className="tabular-nums">{formatZAR(Number(c.amount))}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
