@@ -193,6 +193,37 @@ function AccountDashboard() {
           </ul>
         )}
       </section>
+
+      <section className="mt-6">
+        <h2 className="mb-3 text-lg font-semibold">Settlements</h2>
+        {settlements.length === 0 ? (
+          <div className={cardCls("text-sm text-muted-foreground")}>
+            No settlements recorded yet.
+          </div>
+        ) : (
+          <ul className="grid gap-2">
+            {[...settlements]
+              .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
+              .map((s) => {
+                const trip = trips.find((t) => t.id === s.trip_id);
+                return (
+                  <li key={s.id} className={cardCls("flex flex-wrap items-center justify-between gap-3")}>
+                    <div>
+                      <div className="font-medium">
+                        {memberName(s.from_member_id)} → {memberName(s.to_member_id)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatDate(s.date)} · {trip?.name ?? "Account-wide"}
+                      </div>
+                      {s.notes && <div className="mt-1 text-sm text-muted-foreground">{s.notes}</div>}
+                    </div>
+                    <div className="font-semibold tabular-nums">{formatZAR(Number(s.amount))}</div>
+                  </li>
+                );
+              })}
+          </ul>
+        )}
+      </section>
     </AppShell>
   );
 }
