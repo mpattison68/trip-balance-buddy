@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { categoriesQO, membersQO, expenseQO } from "@/lib/queries";
+import { categoriesQO, membersQO, expenseQO, tripDetailQO } from "@/lib/queries";
 import { AppShell, PageHeader } from "@/components/AppShell";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { saveExpense } from "@/lib/data.functions";
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_authenticated/app/accounts/$accountId/tr
       context.queryClient.ensureQueryData(membersQO(params.accountId)),
       context.queryClient.ensureQueryData(categoriesQO(params.accountId)),
       context.queryClient.ensureQueryData(expenseQO(params.expenseId)),
+      context.queryClient.ensureQueryData(tripDetailQO(params.tripId)),
     ]),
   component: EditExpense,
 });
@@ -22,6 +23,12 @@ function EditExpense() {
   const { data: members } = useSuspenseQuery(membersQO(accountId));
   const { data: cats } = useSuspenseQuery(categoriesQO(accountId));
   const { data: ex } = useSuspenseQuery(expenseQO(expenseId));
+  const { data: detail } = useSuspenseQuery(tripDetailQO(tripId));
+  const participantIds = new Set(detail.participants);
+  // Include members who already have contributions/shares on this expense (in case they were since removed)
+  for (const c of ex.contributions) participantIds.add(c.member_id);
+  for (const s of ex.shares) participantIds.add(s.member_id);
+  const tripMembers = members.filter((m) => participantIds.has(m.id));
   const navigate = useNavigate();
   const qc = useQueryClient();
   const save = useServerFn(saveExpense);
@@ -48,7 +55,7 @@ function EditExpense() {
     <AppShell accountId={accountId}>
       <PageHeader title="Edit expense" />
       <ExpenseForm
-        members={members}
+        members={tripMembers}
         categories={cats}
         submitting={m.isPending}
         initial={{

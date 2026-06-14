@@ -169,6 +169,7 @@ export const createTrip = createServerFn({ method: "POST" })
       endDate?: string;
       notes?: string;
       status: "planning" | "active" | "closed";
+      memberIds?: string[];
     }) =>
       z
         .object({
@@ -178,6 +179,7 @@ export const createTrip = createServerFn({ method: "POST" })
           endDate: z.string().optional().or(z.literal("")),
           notes: z.string().max(2000).optional().or(z.literal("")),
           status: z.enum(["planning", "active", "closed"]),
+          memberIds: z.array(z.string().uuid()).max(50).optional(),
         })
         .parse(d),
   )
@@ -196,7 +198,43 @@ export const createTrip = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
+    let memberIds = data.memberIds;
+    if (!memberIds || memberIds.length === 0) {
+      const { data: ms } = await context.supabase
+        .from("account_members")
+        .select("id")
+        .eq("account_id", data.accountId)
+        .is("archived_at", null);
+      memberIds = (ms ?? []).map((m) => m.id);
+    }
+    if (memberIds.length) {
+      const { error: pErr } = await context.supabase
+        .from("trip_participants")
+        .insert(memberIds.map((id) => ({ trip_id: row.id, member_id: id, account_id: data.accountId })));
+      if (pErr) throw new Error(pErr.message);
+    }
     return row;
+  });
+
+export const setTripParticipants = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { tripId: string; accountId: string; memberIds: string[] }) =>
+    z
+      .object({
+        tripId: z.string().uuid(),
+        accountId: z.string().uuid(),
+        memberIds: z.array(z.string().uuid()).min(1).max(50),
+      })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const del = await context.supabase.from("trip_participants").delete().eq("trip_id", data.tripId);
+    if (del.error) throw new Error(del.error.message);
+    const ins = await context.supabase.from("trip_participants").insert(
+      data.memberIds.map((id) => ({ trip_id: data.tripId, member_id: id, account_id: data.accountId })),
+    );
+    if (ins.error) throw new Error(ins.error.message);
+    return { ok: true };
   });
 
 export const updateTrip = createServerFn({ method: "POST" })
@@ -243,7 +281,7 @@ export const getTripDetail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { tripId: string }) => z.object({ tripId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    const [tripRes, expensesRes, contribsRes, sharesRes, settlementsRes] = await Promise.all([
+    const [tripRes, expensesRes, contribsRes, sharesRes, settlementsRes, participantsRes] = await Promise.all([
       context.supabase.from("trips").select("*").eq("id", data.tripId).single(),
       context.supabase
         .from("expenses")
@@ -283,18 +321,24 @@ export const getTripDetail = createServerFn({ method: "GET" })
         .eq("trip_id", data.tripId)
         .is("archived_at", null)
         .order("date", { ascending: false }),
+      context.supabase
+        .from("trip_participants")
+        .select("member_id")
+        .eq("trip_id", data.tripId),
     ]);
     if (tripRes.error) throw new Error(tripRes.error.message);
     if (expensesRes.error) throw new Error(expensesRes.error.message);
     if (contribsRes.error) throw new Error(contribsRes.error.message);
     if (sharesRes.error) throw new Error(sharesRes.error.message);
     if (settlementsRes.error) throw new Error(settlementsRes.error.message);
+    if (participantsRes.error) throw new Error(participantsRes.error.message);
     return {
       trip: tripRes.data,
       expenses: expensesRes.data ?? [],
       contributions: contribsRes.data ?? [],
       shares: sharesRes.data ?? [],
       settlements: settlementsRes.data ?? [],
+      participants: (participantsRes.data ?? []).map((p) => p.member_id),
     };
   });
 

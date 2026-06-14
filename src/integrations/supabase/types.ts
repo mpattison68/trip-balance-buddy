@@ -330,6 +330,52 @@ export type Database = {
           },
         ]
       }
+      trip_participants: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          member_id: string
+          trip_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          member_id: string
+          trip_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          member_id?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_participants_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_participants_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "account_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_participants_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trips: {
         Row: {
           account_id: string
