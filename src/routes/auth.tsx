@@ -22,6 +22,8 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -40,6 +42,27 @@ function AuthPage() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Google sign-in failed");
       setOauthLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    if (!email) {
+      toast.error("Enter your email address first.");
+      return;
+    }
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/auth` },
+      });
+      if (error) throw error;
+      toast.success("Verification email resent — check your inbox.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to resend email");
+    } finally {
+      setResendLoading(false);
     }
   }
 
@@ -69,9 +92,11 @@ function AuthPage() {
         // If email confirmation is required, Supabase returns a user but no session.
         if (!data.session) {
           toast.success("Account created — check your email to confirm your address before signing in.");
+          setVerificationSent(true);
           setMode("signin");
           return;
         }
+        setVerificationSent(false);
         toast.success("Account created — you're signed in!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -155,6 +180,16 @@ function AuthPage() {
                   className="block w-full text-center text-xs text-muted-foreground hover:underline"
                 >
                   Back to sign in
+                </button>
+              )}
+              {mode === "signin" && verificationSent && (
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendLoading}
+                  className="block w-full text-center text-xs text-primary hover:underline disabled:opacity-50"
+                >
+                  {resendLoading ? "Sending…" : "Resend verification email"}
                 </button>
               )}
             </form>
