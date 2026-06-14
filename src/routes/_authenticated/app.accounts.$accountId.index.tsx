@@ -96,6 +96,20 @@ function AccountDashboard() {
         }
       />
 
+      {members.filter((m) => !m.archived_at).length <= 1 && (
+        <section className="mb-6">
+          <div className={cardCls("flex flex-wrap items-center justify-between gap-3 border-amber-500/40 bg-amber-500/5")}>
+            <div>
+              <div className="font-semibold">Add your fellow travellers</div>
+              <div className="text-sm text-muted-foreground">Add everyone who shares trip costs before creating a trip.</div>
+            </div>
+            <Button asChild size="sm">
+              <Link to="/app/accounts/$accountId/members" params={{ accountId }}>Manage members</Link>
+            </Button>
+          </div>
+        </section>
+      )}
+
       <section className="mb-6">
         <div className={cardCls("border-primary/30 bg-primary/5")}>
           <div className="text-sm uppercase tracking-wide text-primary">Current position</div>
